@@ -1,24 +1,14 @@
-/// A base class for handling failures in the application.
+//For domain-level failures (used in Either)
 abstract class Failure {
   final String message;
 
-  Failure(this.message);
-
-  @override
-  String toString() => message;
+  Failure({required this.message});
 }
 
-/// A specific failure for network-related issues.
-class NetworkFailure extends Failure {
-  NetworkFailure(String message) : super(message);
-}
-
-/// A specific failure for server-related issues.
 class ServerFailure extends Failure {
-  ServerFailure(String message) : super(message);
+  ServerFailure(String string, {required String message}) : super(message: message);
 }
 
-/// A specific failure for cache-related issues.
 class CacheFailure extends Failure {
-  CacheFailure(String message) : super(message);
+  CacheFailure({required String message}) : super(message: message);
 }

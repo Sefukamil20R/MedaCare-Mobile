@@ -1,16 +1,11 @@
+import 'package:dartz/dartz.dart';
+import 'package:medacare/core/errors/failure.dart';
+import 'package:medacare/feature/Auth/domain/entitiy/user_entity.dart';
+
 abstract class AuthRepository {
-  /// Signs in a user with email and password.
-  /// Returns a user ID if successful.
-  Future<String> signInWithEmailAndPassword(String email, String password);
-
-  /// Registers a new user with email and password.
-  /// Returns a user ID if successful.
-  Future<String> registerWithEmailAndPassword(String email, String password);
-
-  /// Signs out the currently signed-in user.
-  Future<void> signOut();
-
-  /// Checks if a user is currently signed in.
-  /// Returns true if a user is signed in, otherwise false.
-  Future<bool> isUserSignedIn();
+  Future<Either<Failure, User>> register(User user);
+  Future<Either<Failure, String>> verifyEmail(String email, String token);
+  Future<Either<Failure, String>> login(String email, String password);
+  Future<Either<Failure, User>> getUserProfile();
+  Future<Either<Failure, void>> logout();
 }
