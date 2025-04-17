@@ -1,4 +1,5 @@
 
+import 'package:medacare/feature/Auth/domain/usecase/ResendVerificationEmailUseCase.dart';
 import 'package:medacare/feature/Auth/domain/usecase/get_user_profile_usecase.dart';
 import 'package:medacare/feature/Auth/domain/usecase/login_user_usecase.dart';
 import 'package:medacare/feature/Auth/domain/usecase/logout_usecase.dart';
@@ -15,6 +16,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final LoginUserUseCase loginUserUseCase;
   final GetUserProfileUseCase getUserProfileUseCase;
   final LogoutUseCase logoutUseCase;
+  final ResendVerificationEmailUseCase resendVerificationEmailUseCase; // Add this
+
 
   AuthBloc({
     required this.registerUserUseCase,
@@ -22,16 +25,20 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required this.loginUserUseCase,
     required this.getUserProfileUseCase,
     required this.logoutUseCase,
+    required this.resendVerificationEmailUseCase, // Add this
   }) : super(AuthInitial()) {
     on<RegisterUserEvent>(_onRegisterUser);
     on<VerifyEmailEvent>(_onVerifyEmail);
     on<LoginUserEvent>(_onLoginUser);
     on<GetUserProfileEvent>(_onGetProfile);
     on<LogoutUserEvent>(_onLogout);
+    on<ResendVerificationEmailEvent>(_onResendVerificationEmail);
+
   }
 
   Future<void> _onRegisterUser(RegisterUserEvent event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
+    
     final result = await registerUserUseCase.call(event.user);
     result.fold(
       (failure) => emit(AuthError(failure.message)),
@@ -73,5 +80,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       (failure) => emit(AuthError(failure.message)),
       (_) => emit(LoggedOutState()),
     );
+  }
+  Future<void> _onResendVerificationEmail(
+      ResendVerificationEmailEvent event, Emitter<AuthState> emit) async {
+    emit(AuthLoading());
+    try {
+      await resendVerificationEmailUseCase.call(event.email); // Use the use case
+    } catch (e) {
+      emit(AuthError(e.toString()));
+    }
   }
 }

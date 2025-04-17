@@ -33,4 +33,15 @@ class UserModel extends User {
       "lastName": lastName,
     };
   }
+  factory UserModel.fromEntity(User user) {
+    return UserModel(
+      // Map User entity properties to UserModel properties
+      id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      password: user.password, 
+      // Add other fields as necessary
+    );
+  }
 }

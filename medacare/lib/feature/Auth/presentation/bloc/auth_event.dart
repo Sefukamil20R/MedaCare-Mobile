@@ -38,3 +38,11 @@ class LoginUserEvent extends AuthEvent {
 class GetUserProfileEvent extends AuthEvent {}
 
 class LogoutUserEvent extends AuthEvent {}
+class ResendVerificationEmailEvent extends AuthEvent {
+  final String email;
+
+  ResendVerificationEmailEvent(this.email);
+
+  @override
+  List<Object?> get props => [email];
+}
