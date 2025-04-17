@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:medacare/feature/Auth/presentation/bloc/auth_bloc.dart';
+import 'package:medacare/feature/Auth/presentation/bloc/auth_event.dart';
+import 'package:medacare/feature/Auth/presentation/bloc/auth_state.dart';
 import 'package:medacare/feature/Auth/presentation/pages/profile_details.dart';
 
 class SigninScreen extends StatefulWidget {
@@ -9,6 +13,8 @@ class SigninScreen extends StatefulWidget {
 }
 
 class _SigninScreenState extends State<SigninScreen> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
   bool _obscurePassword = true;
 
   @override
@@ -19,123 +25,161 @@ class _SigninScreenState extends State<SigninScreen> {
         child: Center(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const SizedBox(height: 2),
-
-                // Logo
-                Image.asset(
-                  'assets/images/medaCare_logo.png',
-                  height: 80,
-                ),
-
-                const SizedBox(height: 16),
-
-                // Title
-                const Text(
-                  'Sign in',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF1D586E),
-                  ),
-                ),
-
-                const SizedBox(height: 24),
-
-                // Email
-                TextFormField(
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(
-                    labelText: 'Email',
-                    labelStyle: TextStyle(color: Color(0xFF1D586E)),
-                    border: OutlineInputBorder(),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Color(0xFF1D586E)),
+            child: BlocConsumer<AuthBloc, AuthState>(
+              listener: (context, state) {
+                if (state is LoggedInState) {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ProfileDetailsPage(),
                     ),
-                  ),
-                ),
+                  );
+                } else if (state is AuthError) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(state.message)),
+                  );
+                }
+              },
+              builder: (context, state) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const SizedBox(height: 2),
 
-                const SizedBox(height: 36),
-
-                // Password
-                TextFormField(
-                  obscureText: _obscurePassword,
-                  decoration: InputDecoration(
-                    labelText: 'Password',
-                    labelStyle: const TextStyle(color: Color(0xFF1D586E)),
-                    border: const OutlineInputBorder(),
-                    focusedBorder: const OutlineInputBorder(
-                      borderSide: BorderSide(color: Color(0xFF1D586E)),
+                    // Logo
+                    Image.asset(
+                      'assets/images/medaCare_logo.png',
+                      height: 80,
                     ),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscurePassword
-                            ? Icons.visibility_off
-                            : Icons.visibility,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _obscurePassword = !_obscurePassword;
-                        });
-                      },
-                    ),
-                  ),
-                ),
 
-                const SizedBox(height: 64),
+                    const SizedBox(height: 16),
 
-                // Sign In Button
-                SizedBox(
-                  width: double.infinity,
-                  height: 45,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFA55D68),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                    ),
-                    onPressed: () {
-                      // Handle sign in action here
-                      Navigator.push(context, MaterialPageRoute(
-                        builder: (context) =>  ProfileDetailsPage(),
-                      ));
-                    },
-                    child: const Text(
-                      'SIGN IN',
+                    // Title
+                    const Text(
+                      'Sign in',
                       style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.2,
+                        fontSize: 24,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF1D586E),
                       ),
                     ),
-                  ),
-                ),
 
-                const SizedBox(height: 106),
+                    const SizedBox(height: 24),
 
-                // Don't have an account? Sign Up
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
-                    Text(
-                      "Don’t have an account? ",
-                      style: TextStyle(color: Colors.black87),
-                    ),
-                    Text(
-                      "Sign Up",
-                      style: TextStyle(
-                        color: Color(0xFFA55D68),
-                        fontWeight: FontWeight.bold,
+                    // Email
+                    TextFormField(
+                      controller: _emailController,
+                      keyboardType: TextInputType.emailAddress,
+                      decoration: const InputDecoration(
+                        labelText: 'Email',
+                        labelStyle: TextStyle(color: Color(0xFF1D586E)),
+                        border: OutlineInputBorder(),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Color(0xFF1D586E)),
+                        ),
                       ),
-                    )
+                    ),
+
+                    const SizedBox(height: 36),
+
+                    // Password
+                    TextFormField(
+                      controller: _passwordController,
+                      obscureText: _obscurePassword,
+                      decoration: InputDecoration(
+                        labelText: 'Password',
+                        labelStyle: const TextStyle(color: Color(0xFF1D586E)),
+                        border: const OutlineInputBorder(),
+                        focusedBorder: const OutlineInputBorder(
+                          borderSide: BorderSide(color: Color(0xFF1D586E)),
+                        ),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscurePassword
+                                ? Icons.visibility_off
+                                : Icons.visibility,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _obscurePassword = !_obscurePassword;
+                            });
+                          },
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 64),
+
+                    // Sign In Button
+                    SizedBox(
+                      width: double.infinity,
+                      height: 45,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFA55D68),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                        onPressed: () {
+                          final email = _emailController.text.trim();
+                          final password = _passwordController.text.trim();
+                          if (email.isNotEmpty && password.isNotEmpty) {
+                            context.read<AuthBloc>().add(
+                                  LoginUserEvent(email, password),
+                                );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Please fill in all fields'),
+                              ),
+                            );
+                          }
+                        },
+                        child: state is AuthLoading
+                            ? const CircularProgressIndicator(
+                                color: Colors.white,
+                              )
+                            : const Text(
+                                'SIGN IN',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 1.2,
+                                ),
+                              ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 106),
+
+                    // Don't have an account? Sign Up
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          "Don’t have an account? ",
+                          style: TextStyle(color: Colors.black87),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.pushNamed(context, '/signup');
+                          },
+                          child: const Text(
+                            "Sign Up",
+                            style: TextStyle(
+                              color: Color(0xFFA55D68),
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 20),
                   ],
-                ),
-
-                const SizedBox(height: 20),
-              ],
+                );
+              },
             ),
           ),
         ),
