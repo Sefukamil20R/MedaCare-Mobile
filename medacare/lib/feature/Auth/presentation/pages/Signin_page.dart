@@ -4,6 +4,7 @@ import 'package:medacare/feature/Auth/presentation/bloc/auth_bloc.dart';
 import 'package:medacare/feature/Auth/presentation/bloc/auth_event.dart';
 import 'package:medacare/feature/Auth/presentation/bloc/auth_state.dart';
 import 'package:medacare/feature/Auth/presentation/pages/profile_details.dart';
+import 'package:medacare/core/errors/utility.dart'; // Import utility for validation and SnackBar
 
 class SigninScreen extends StatefulWidget {
   const SigninScreen({super.key});
@@ -17,6 +18,8 @@ class _SigninScreenState extends State<SigninScreen> {
   final TextEditingController _passwordController = TextEditingController();
   bool _obscurePassword = true;
 
+  final ValidationService _validationService = ValidationService(); // Use ValidationService
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,6 +31,11 @@ class _SigninScreenState extends State<SigninScreen> {
             child: BlocConsumer<AuthBloc, AuthState>(
               listener: (context, state) {
                 if (state is LoggedInState) {
+                  showCustomSnackBar(
+                    context,
+                    'Login successful!',
+                    Colors.green, // Green for success
+                  );
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
@@ -35,8 +43,10 @@ class _SigninScreenState extends State<SigninScreen> {
                     ),
                   );
                 } else if (state is AuthError) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(state.message)),
+                  showCustomSnackBar(
+                    context,
+                    state.message, // User-friendly error message
+                    Colors.red, // Red for errors
                   );
                 }
               },
@@ -124,17 +134,40 @@ class _SigninScreenState extends State<SigninScreen> {
                         onPressed: () {
                           final email = _emailController.text.trim();
                           final password = _passwordController.text.trim();
-                          if (email.isNotEmpty && password.isNotEmpty) {
-                            context.read<AuthBloc>().add(
-                                  LoginUserEvent(email, password),
-                                );
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Please fill in all fields'),
-                              ),
+
+                          // Validate Email
+                          if (email.isEmpty) {
+                            showCustomSnackBar(
+                              context,
+                              'Please enter your email.',
+                              Colors.red, // Red for errors
                             );
+                            return;
                           }
+
+                          if (!_validationService.isValidEmail(email)) {
+                            showCustomSnackBar(
+                              context,
+                              'Please enter a valid email address.',
+                              Colors.red, // Red for errors
+                            );
+                            return;
+                          }
+
+                          // Validate Password
+                          if (password.isEmpty) {
+                            showCustomSnackBar(
+                              context,
+                              'Please enter your password.',
+                              Colors.red, // Red for errors
+                            );
+                            return;
+                          }
+
+                          // Proceed with login
+                          context.read<AuthBloc>().add(
+                                LoginUserEvent(email, password),
+                              );
                         },
                         child: state is AuthLoading
                             ? const CircularProgressIndicator(

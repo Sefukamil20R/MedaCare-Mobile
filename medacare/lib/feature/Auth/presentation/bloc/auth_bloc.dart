@@ -47,7 +47,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   Future<void> _onVerifyEmail(VerifyEmailEvent event, Emitter<AuthState> emit) async {
-    emit(AuthLoading());
+    emit(VerifyLoading());
     final result = await verifyEmailUseCase.call(event.email, event.token);
     result.fold(
       (failure) => emit(AuthError(failure.message)),
@@ -83,7 +83,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
   Future<void> _onResendVerificationEmail(
       ResendVerificationEmailEvent event, Emitter<AuthState> emit) async {
-    emit(AuthLoading());
+    emit(ResendEmailLoading());
     try {
       await resendVerificationEmailUseCase.call(event.email); // Use the use case
     } catch (e) {

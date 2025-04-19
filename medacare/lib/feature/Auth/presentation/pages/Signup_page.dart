@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:medacare/core/errors/utility.dart';
 import 'package:medacare/feature/Auth/presentation/bloc/auth_bloc.dart';
 import 'package:medacare/feature/Auth/presentation/bloc/auth_event.dart';
 import 'package:medacare/feature/Auth/presentation/bloc/auth_state.dart';
@@ -22,6 +23,7 @@ class _SignupScreenState extends State<SignupScreen> {
   final TextEditingController _confirmPasswordController = TextEditingController();
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
+final validationService = ValidationService();
 
   @override
   Widget build(BuildContext context) {
@@ -34,18 +36,22 @@ class _SignupScreenState extends State<SignupScreen> {
             child: BlocConsumer<AuthBloc, AuthState>(
               listener: (context, state) {
                 if (state is RegisteredState) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Registration successful!')),
-                  );
+                   showCustomSnackBar(
+      context,
+      'Registration successful! Please verify your email.',
+      Colors.green, // Green for success
+    );
 Navigator.pushReplacement(
   context,
   MaterialPageRoute(
     builder: (context) => VerifyPage(email: _emailController.text), // Pass the email
   ),
 );                } else if (state is AuthError) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(state.message)),
-                  );
+                 showCustomSnackBar(
+      context,
+      state.message, // User-friendly error message
+      Colors.red, // Red for errors
+    );
                 }
               },
               builder: (context, state) {
@@ -188,40 +194,53 @@ Navigator.pushReplacement(
                           ),
                         ),
                         onPressed: () {
-                          Navigator.pushReplacement(
-  context,
-  MaterialPageRoute(
-    builder: (context) => VerifyPage(email: _emailController.text), // Pass the email
-  ),
-);
+                          
                           final firstName = _firstNameController.text.trim();
                           final lastName = _lastNameController.text.trim();
                           final email = _emailController.text.trim();
                           final password = _passwordController.text.trim();
                           final confirmPassword =
                               _confirmPasswordController.text.trim();
-
+                       
                           if (firstName.isEmpty ||
                               lastName.isEmpty ||
                               email.isEmpty ||
                               password.isEmpty ||
                               confirmPassword.isEmpty) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Please fill in all fields'),
-                              ),
-                            );
-                            return;
+                            showCustomSnackBar(
+      context,
+      'Please fill in all fields.',
+      Colors.red, // Red for errors
+    );
+    return;
                           }
 
                           if (password != confirmPassword) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Passwords do not match'),
-                              ),
-                            );
-                            return;
-                          }
+                            showCustomSnackBar(
+      context,
+      'Passwords do not match.',
+      Colors.red, // Red for errors
+    );
+    return;
+    
+  }
+   if (!validationService.isValidEmail(email)) {
+  showCustomSnackBar(
+    context,
+    'Please enter a valid email address.',
+    Colors.red,
+  );
+  return;
+}
+  if (!validationService.isValidPassword(password)) {
+    showCustomSnackBar(
+      context,
+      'Password must be at least 8 characters long, include 1 uppercase letter, 1 lowercase letter, and 1 special character.',
+      Colors.red, // Red for errors
+    );
+    return;
+  }
+
 
                           context.read<AuthBloc>().add(
                                 RegisterUserEvent(

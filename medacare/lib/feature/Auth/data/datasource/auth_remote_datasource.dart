@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:medacare/core/errors/utility.dart';
 import 'package:medacare/feature/Auth/data/model/user_model.dart';
 
 abstract class AuthRemoteDataSource {
@@ -46,7 +47,6 @@ Future<UserModel> register(UserModel userModel) async {
     throw Exception('Error during registration: $e');
   }
 }
-
 @override
 Future<String> verifyEmail(String email, String token) async {
   try {
@@ -58,14 +58,13 @@ Future<String> verifyEmail(String email, String token) async {
 
     final body = jsonDecode(response.body);
     if (response.statusCode == 200 && body['status'] == 'success') {
-      // Return the data field directly as a String
-      return body['data'];
+      return body['data']['token'];
     } else {
-      throw Exception(body['message'] ?? 'Verification failed');
+      throw Exception(ErrorMapper.getFriendlyMessage(body['message'] ?? 'Verification failed'));
     }
   } catch (e) {
     print('Error during email verification: $e'); // Log the error
-    throw Exception('Error during email verification: $e');
+    throw Exception(ErrorMapper.getFriendlyMessage(e.toString()));
   }
 }
   @override

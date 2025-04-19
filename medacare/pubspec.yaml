@@ -44,9 +44,18 @@ dependencies:
   flutter_bloc: ^9.1.0
   get_it: ^7.6.0
   shared_preferences: ^2.5.3
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_launcher_icons: ^0.13.1
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/medaCare_logo.png"
+
+
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
