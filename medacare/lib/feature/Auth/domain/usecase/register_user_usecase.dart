@@ -10,6 +10,7 @@ class RegisterUserUseCase {
   RegisterUserUseCase(this.repository);
 
   Future<Either<Failure, User>> call(User user) {
+    print("RegisterUserUseCase called with user: $user");
     return repository.register(user);
   }
 }
