@@ -5,5 +5,5 @@ import 'package:medacare/injection_container.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await setupLocator();
-  runApp(MedaCareApp());
+  runApp(const MedaCareApp(initialRoute: '/splash')); 
 }

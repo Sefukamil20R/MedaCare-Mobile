@@ -14,25 +14,19 @@ class RegisterUserEvent extends AuthEvent {
   @override
   List<Object?> get props => [user];
 }
-
 class VerifyEmailEvent extends AuthEvent {
   final String email;
   final String token;
+  final int expiresIn; 
 
-  VerifyEmailEvent(this.email, this.token);
-
-  @override
-  List<Object?> get props => [email, token];
+  VerifyEmailEvent(this.email, this.token, {this.expiresIn = 3600000}); // Default to 1 hour
 }
-
 class LoginUserEvent extends AuthEvent {
   final String email;
   final String password;
+  final int expiresIn; // Add expiresIn field with a default value
 
-  LoginUserEvent(this.email, this.password);
-
-  @override
-  List<Object?> get props => [email, password];
+  LoginUserEvent(this.email, this.password, {this.expiresIn = 3600000}); // Default to 1 hour
 }
 
 class GetUserProfileEvent extends AuthEvent {}
@@ -45,4 +39,14 @@ class ResendVerificationEmailEvent extends AuthEvent {
 
   @override
   List<Object?> get props => [email];
+}
+class AuthErrorEvent extends AuthEvent {
+  final String message;
+
+  AuthErrorEvent(this.message);
+}
+class CompletePatientProfileEvent extends AuthEvent {
+  final Map<String, dynamic> profileData;
+
+  CompletePatientProfileEvent(this.profileData);
 }

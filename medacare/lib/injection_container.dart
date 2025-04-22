@@ -3,6 +3,7 @@ import 'package:medacare/feature/Auth/data/datasource/auth_remote_datasource.dar
 import 'package:medacare/feature/Auth/data/repository_impl/auth_repository_impl.dart';
 import 'package:medacare/feature/Auth/domain/repository/auth_repository.dart';
 import 'package:medacare/feature/Auth/domain/usecase/ResendVerificationEmailUseCase.dart';
+import 'package:medacare/feature/Auth/domain/usecase/completeprofile.dart';
 import 'package:medacare/feature/Auth/domain/usecase/get_user_profile_usecase.dart';
 import 'package:medacare/feature/Auth/domain/usecase/login_user_usecase.dart';
 import 'package:medacare/feature/Auth/domain/usecase/logout_usecase.dart';
@@ -21,7 +22,7 @@ Future<void> setupLocator() async {
     verifyEmailUseCase: sl(),
     loginUserUseCase: sl(),
     getUserProfileUseCase: sl(),
-    logoutUseCase: sl(), resendVerificationEmailUseCase: sl(),
+    logoutUseCase: sl(), resendVerificationEmailUseCase: sl(), completePatientProfileUseCase: sl(), // Add this line
   ));
 
   // Use cases
@@ -31,6 +32,7 @@ Future<void> setupLocator() async {
   sl.registerLazySingleton(() => GetUserProfileUseCase(sl()));
   sl.registerLazySingleton(() => LogoutUseCase(sl()));
   sl.registerLazySingleton(() => ResendVerificationEmailUseCase(sl()));
+  sl.registerLazySingleton(() => CompletePatientProfileUseCase(sl())); // Add this line
   // Repository
   sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(
     remoteDataSource: sl(),

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:medacare/feature/Auth/presentation/bloc/auth_bloc.dart';
 import 'package:medacare/feature/Auth/presentation/bloc/auth_event.dart';
 import 'package:medacare/feature/Auth/presentation/bloc/auth_state.dart';
+import 'package:medacare/feature/Auth/presentation/pages/Complete_Profile.dart';
 import 'package:medacare/feature/Auth/presentation/pages/profile_details.dart';
 import 'package:medacare/core/errors/utility.dart'; // Import utility for validation and SnackBar
 
@@ -28,6 +29,7 @@ class _SigninScreenState extends State<SigninScreen> {
         child: Center(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 24),
+            
             child: BlocConsumer<AuthBloc, AuthState>(
               listener: (context, state) {
                 if (state is LoggedInState) {

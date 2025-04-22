@@ -65,3 +65,13 @@ class AuthMessage extends AuthState {
   final String message;
   AuthMessage(this.message);
 }
+
+class ProfileCompletionLoading extends AuthState {}
+
+class ProfileCompletionSuccess extends AuthState {}
+
+class ProfileCompletionError extends AuthState {
+  final String message;
+
+  ProfileCompletionError(this.message);
+}

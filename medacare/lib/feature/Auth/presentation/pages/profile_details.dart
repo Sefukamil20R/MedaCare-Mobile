@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:medacare/feature/Auth/presentation/bloc/auth_bloc.dart';
+import 'package:medacare/feature/Auth/presentation/bloc/auth_event.dart';
 
 class ProfileDetailsPage extends StatefulWidget {
   @override
@@ -10,9 +13,21 @@ class _ProfileDetailsPageState extends State<ProfileDetailsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Profile Details'),
+        title: const Text('Home Page'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () {
+              // Trigger the logout event
+              context.read<AuthBloc>().add(LogoutUserEvent());
+
+              // Navigate to the login page
+              Navigator.pushReplacementNamed(context, '/signin');
+            },
+          ),
+        ],
       ),
-      body: Center(
+      body: const Center(
         child: Text('Profile Details Page'),
       ),
     );

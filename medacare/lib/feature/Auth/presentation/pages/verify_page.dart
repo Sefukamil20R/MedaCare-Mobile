@@ -30,13 +30,13 @@ class _VerifyPageState extends State<VerifyPage> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Email verified successfully!')),
                   );
-                  Navigator.pushReplacementNamed(context, '/signin');
+                  Navigator.pushReplacementNamed(context, '/verify_success');
                 } else if (state is AuthError) {
                   if (state.message.contains('already verified')) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('User is already verified. Please log in.')),
                     );
-                    Navigator.pushReplacementNamed(context, '/signin');
+                    Navigator.pushReplacementNamed(context, '/verify_success');
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text(state.message)),

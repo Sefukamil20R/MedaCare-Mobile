@@ -75,7 +75,13 @@ class AuthRepositoryImpl implements AuthRepository {
       return Left(CacheFailure(message: "Failed to clear token"));
     }
   }
+  @override
   Future<void> resendVerificationEmail(String email) async {
-    return await remoteDataSource.resendVerificationEmail(email);
+    await remoteDataSource.resendVerificationEmail(email);
+  }
+
+  @override
+  Future<void> completePatientProfile(Map<String, dynamic> profileData) async {
+    await remoteDataSource.completePatientProfile(profileData);
   }
 }

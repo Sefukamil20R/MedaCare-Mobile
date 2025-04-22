@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:medacare/core/errors/utility.dart';
 import 'package:medacare/feature/Auth/data/model/user_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 abstract class AuthRemoteDataSource {
   Future<UserModel> register(UserModel userModel);
@@ -10,6 +12,7 @@ abstract class AuthRemoteDataSource {
   Future<UserModel> getUserProfile(String token);
   Future<void> logout();
   Future<void> resendVerificationEmail(String email);
+  Future<void> completePatientProfile(Map<String, dynamic> profileData);
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -26,7 +29,6 @@ Future<UserModel> register(UserModel userModel) async {
       ...userModel.toJson(),
       "origin": "SELF_REGISTERED", // Add the origin field
     };
-    print('Request Payload: $payload'); // Log the payload
 
     final response = await client.post(
       Uri.parse("$baseUrl/auth/signup"),
@@ -34,7 +36,6 @@ Future<UserModel> register(UserModel userModel) async {
       body: jsonEncode(payload),
     );
 
-    print('API Response: ${response.body}');
 
     final body = jsonDecode(response.body);
     if (response.statusCode == 200 || response.statusCode == 201) {
@@ -54,11 +55,22 @@ Future<String> verifyEmail(String email, String token) async {
       Uri.parse("$baseUrl/auth/verify-email?email=$email&token=$token"),
     );
 
-    print('API Response: ${response.body}'); // Log the response
 
     final body = jsonDecode(response.body);
     if (response.statusCode == 200 && body['status'] == 'success') {
-      return body['data']['token'];
+      final token = body['data']['token'];
+      final expiresIn = body['data']['expiresIn'];
+
+      // Save token and expiration locally
+      final prefs = await SharedPreferences.getInstance();
+      final expirationDate = DateTime.now().add(Duration(milliseconds: expiresIn));
+      await prefs.setString('token', token);
+      await prefs.setString('token_expiration', expirationDate.toIso8601String());
+
+      // Schedule automatic logout
+      scheduleLogout(expiresIn);
+
+      return token;
     } else {
       throw Exception(ErrorMapper.getFriendlyMessage(body['message'] ?? 'Verification failed'));
     }
@@ -69,6 +81,7 @@ Future<String> verifyEmail(String email, String token) async {
 }
   @override
   Future<String> login(String email, String password) async {
+
     try {
       final response = await client.post(
         Uri.parse("$baseUrl/auth/login"),
@@ -79,10 +92,13 @@ Future<String> verifyEmail(String email, String token) async {
       final body = jsonDecode(response.body);
       if (response.statusCode == 200 && body['status'] == 'success') {
         print('user logged in  successfully'); // Log the response
+              print('API Response: ${response.body}'); // Log the response
+
         return body['data']['token'];
         
       } else {
         throw Exception(body['message'] ?? 'Login failed');
+        
       }
     } catch (e) {
       throw Exception('Error during login: $e');
@@ -110,18 +126,23 @@ Future<String> verifyEmail(String email, String token) async {
     }
   }
 
-  @override
-  Future<void> logout() async {
-    // If your backend doesn't have logout, clear token from cache
-    return;
+ @override
+Future<void> logout() async {
+  try {
+    // Clear token and expiration from local storage
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear(); // Clears all stored data
+    print('User logged out successfully');
+  } catch (e) {
+    throw Exception('Error during logout: $e');
   }
+}
  Future<void> resendVerificationEmail(String email) async {
     try {
       final response = await client.post(
         Uri.parse("$baseUrl/auth/email/verification?email=$email"),
       );
 
-      print('API Response: ${response.body}'); // Log the response
 
       final body = jsonDecode(response.body);
       if (response.statusCode == 200 && body['status'] == 'success') {
@@ -134,4 +155,37 @@ Future<String> verifyEmail(String email, String token) async {
       throw Exception('Error during resending verification email: $e');
     }
   }
+  void scheduleLogout(int expiresIn) {
+  Future.delayed(Duration(milliseconds: expiresIn), () async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+    print('Token expired. User logged out automatically.');
+    // Notify the UI layer to handle navigation
+  });
+}
+@override
+Future<void> completePatientProfile(Map<String, dynamic> profileData) async {
+  try {
+    final token = await SharedPreferences.getInstance().then((prefs) => prefs.getString('jwt_token'));
+ 
+
+    final response = await client.post(
+      Uri.parse("$baseUrl/patients"),
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token", // Include token if required
+      },
+      body: jsonEncode(profileData),
+    );
+
+
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      final body = jsonDecode(response.body);
+      throw Exception(body['message'] ?? 'Failed to complete profile');
+    }
+  } catch (e) {
+    print('Error during profile completion: $e'); // Log the error
+    throw Exception('Error during profile completion: $e');
+  }
+}
 }

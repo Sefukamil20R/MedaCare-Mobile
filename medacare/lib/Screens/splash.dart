@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:medacare/Screens/onboarding1.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -12,13 +13,48 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    // Delay for 10 seconds and navigate to the next screen
-    Future.delayed(const Duration(seconds: 10), () {
+    
+
+    _navigateToNextScreen();
+  }
+
+  Future<void> _navigateToNextScreen() async {
+    // Simulate a delay for the splash screen
+    await Future.delayed(const Duration(seconds: 10));
+
+    // Get SharedPreferences instance
+    final prefs = await SharedPreferences.getInstance();
+
+    // Check if it's the first launch
+    final isFirstLaunch = prefs.getBool('isFirstLaunch') ?? true;
+
+    if (isFirstLaunch) {
+      // Navigate to onboarding screens
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const OnboardingScreen()), 
+        MaterialPageRoute(builder: (context) => const OnboardingScreen()),
       );
-    });
+    } else {
+      // Determine the next route based on token availability
+      final token = prefs.getString('token');
+      final expiration = prefs.getString('token_expiration');
+
+      String nextRoute;
+      if (token != null && expiration != null) {
+        final expirationDate = DateTime.parse(expiration);
+        if (DateTime.now().isBefore(expirationDate)) {
+          nextRoute = '/profile'; // Navigate to profile or home page
+        } else {
+          await prefs.clear(); // Clear expired token
+          nextRoute = '/signin'; // Navigate to login page
+        }
+      } else {
+        nextRoute = '/signin'; // Default to login page if no token is found
+      }
+
+      // Navigate to the determined route
+      Navigator.pushReplacementNamed(context, nextRoute);
+    }
   }
 
   @override
