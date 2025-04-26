@@ -1,4 +1,5 @@
-
+import 'package:medacare/feature/Auth/domain/usecase/ResendVerificationEmailUseCase.dart';
+import 'package:medacare/feature/Auth/domain/usecase/completeprofile.dart';
 import 'package:medacare/feature/Auth/domain/usecase/get_user_profile_usecase.dart';
 import 'package:medacare/feature/Auth/domain/usecase/login_user_usecase.dart';
 import 'package:medacare/feature/Auth/domain/usecase/logout_usecase.dart';
@@ -15,19 +16,25 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final LoginUserUseCase loginUserUseCase;
   final GetUserProfileUseCase getUserProfileUseCase;
   final LogoutUseCase logoutUseCase;
-
+  final ResendVerificationEmailUseCase resendVerificationEmailUseCase;
+  final CompletePatientProfileUseCase completePatientProfileUseCase;
   AuthBloc({
     required this.registerUserUseCase,
     required this.verifyEmailUseCase,
     required this.loginUserUseCase,
     required this.getUserProfileUseCase,
     required this.logoutUseCase,
+    required this.resendVerificationEmailUseCase,
+    required this.completePatientProfileUseCase,
   }) : super(AuthInitial()) {
     on<RegisterUserEvent>(_onRegisterUser);
     on<VerifyEmailEvent>(_onVerifyEmail);
     on<LoginUserEvent>(_onLoginUser);
     on<GetUserProfileEvent>(_onGetProfile);
     on<LogoutUserEvent>(_onLogout);
+    on<ResendVerificationEmailEvent>(_onResendVerificationEmail);
+    on<CompletePatientProfileEvent>(_onCompletePatientProfile);
+
   }
 
   Future<void> _onRegisterUser(RegisterUserEvent event, Emitter<AuthState> emit) async {
@@ -40,11 +47,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   Future<void> _onVerifyEmail(VerifyEmailEvent event, Emitter<AuthState> emit) async {
-    emit(AuthLoading());
+    emit(VerifyLoading());
     final result = await verifyEmailUseCase.call(event.email, event.token);
     result.fold(
       (failure) => emit(AuthError(failure.message)),
-      (jwt) => emit(EmailVerifiedState(jwt)),
+      (jwt) {
+        emit(EmailVerifiedState(jwt));
+        // Schedule automatic logout after verification
+        scheduleLogout(event.expiresIn);
+      },
     );
   }
 
@@ -53,7 +64,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     final result = await loginUserUseCase.call(event.email, event.password);
     result.fold(
       (failure) => emit(AuthError(failure.message)),
-      (jwt) => emit(LoggedInState(jwt)),
+      (jwt) {
+        emit(LoggedInState(jwt));
+        // Schedule automatic logout after login
+        // scheduleLogout(event.expiresIn);
+      },
     );
   }
 
@@ -73,5 +88,35 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       (failure) => emit(AuthError(failure.message)),
       (_) => emit(LoggedOutState()),
     );
+  }
+
+  Future<void> _onResendVerificationEmail(
+      ResendVerificationEmailEvent event, Emitter<AuthState> emit) async {
+    emit(ResendEmailLoading());
+    try {
+      await resendVerificationEmailUseCase.call(event.email);
+    } catch (e) {
+      emit(AuthError(e.toString()));
+    }
+  }
+
+  void scheduleLogout(int expiresIn) {
+    Future.delayed(Duration(milliseconds: expiresIn), () async {
+      final result = await logoutUseCase.call();
+      result.fold(
+        (failure) => add(AuthErrorEvent(failure.message)), // Emit AuthErrorEvent on failure
+        (_) => add(LogoutUserEvent()), // Emit LogoutUserEvent on success
+      );
+    });
+  }
+   Future<void> _onCompletePatientProfile(
+      CompletePatientProfileEvent event, Emitter<AuthState> emit) async {
+    emit(ProfileCompletionLoading());
+    try {
+      await completePatientProfileUseCase.call(event.profileData);
+      emit(ProfileCompletionSuccess());
+    } catch (e) {
+      emit(ProfileCompletionError(e.toString()));
+    }
   }
 }

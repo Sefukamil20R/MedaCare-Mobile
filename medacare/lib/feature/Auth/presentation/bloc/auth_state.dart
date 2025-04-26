@@ -10,6 +10,10 @@ class AuthInitial extends AuthState {}
 
 class AuthLoading extends AuthState {}
 
+class VerifyLoading extends AuthState {} 
+
+class ResendEmailLoading extends AuthState {} 
+
 class AuthError extends AuthState {
   final String message;
 
@@ -56,3 +60,18 @@ class UserProfileLoadedState extends AuthState {
 }
 
 class LoggedOutState extends AuthState {}
+
+class AuthMessage extends AuthState {
+  final String message;
+  AuthMessage(this.message);
+}
+
+class ProfileCompletionLoading extends AuthState {}
+
+class ProfileCompletionSuccess extends AuthState {}
+
+class ProfileCompletionError extends AuthState {
+  final String message;
+
+  ProfileCompletionError(this.message);
+}

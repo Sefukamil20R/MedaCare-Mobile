@@ -8,4 +8,7 @@ abstract class AuthRepository {
   Future<Either<Failure, String>> login(String email, String password);
   Future<Either<Failure, User>> getUserProfile();
   Future<Either<Failure, void>> logout();
+  Future<void> resendVerificationEmail(String email);
+   Future<void> completePatientProfile(Map<String, dynamic> profileData);
+
 }
