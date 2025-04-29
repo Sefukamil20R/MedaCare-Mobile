@@ -1,1 +1,0 @@
-# MedaCare Mobile Application
