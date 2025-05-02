@@ -12,8 +12,10 @@ import 'feature/Auth/presentation/bloc/auth_bloc.dart';
 import 'feature/Auth/presentation/pages/Complete_Profile.dart';
 import 'feature/Auth/presentation/pages/Signin_page.dart';
 import 'feature/Auth/presentation/pages/Signup_page.dart';
-import 'feature/Auth/presentation/pages/home_page.dart';
+import 'feature/Auth/presentation/pages/profile.dart';
 import 'feature/Auth/presentation/pages/verify_Success.dart';
+import 'feature/home/presentation/pages/home_page.dart';
+import 'feature/home/presentation/pages/booking.dart';
 import 'injection_container.dart';
 
 
@@ -46,8 +48,10 @@ class MedaCareApp extends StatelessWidget {
           '/signup': (context) => SignupScreen(),
           '/signin': (context) => SigninScreen(),
           '/verify_success': (context) => VerificationSuccessScreen(),
-          '/home': (context) => ProfileDetailsPage(), // Add profile page route
-          '/complete_profile': (context) => CompleteProfilePage(), // Add complete profile page route
+          '/profile': (context) => ProfileDetailsPage(), // Add profile page route
+          '/complete_profile': (context) => CompleteProfilePage(), 
+          '/home':(context) =>HomePage(),
+          '/booking': (context) => BookingPage(), // Add booking page route
         }, // Close routes map
       ),
     );

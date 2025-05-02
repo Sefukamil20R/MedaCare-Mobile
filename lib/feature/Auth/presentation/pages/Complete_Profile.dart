@@ -6,8 +6,7 @@ import 'package:intl_phone_field/intl_phone_field.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
-import 'home_page.dart';
-
+import '../../../home/presentation/pages/home_page.dart';
 
 
 class CompleteProfilePage extends StatefulWidget {
@@ -40,7 +39,7 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => ProfileDetailsPage(), // Navigate to ProfileDetailsPage
+              builder: (context) => HomePage(), 
             ),
           );
         } else if (state is ProfileCompletionError) {

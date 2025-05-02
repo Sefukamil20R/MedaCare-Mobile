@@ -5,7 +5,7 @@ import '../../../../core/errors/utility.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
-import 'home_page.dart';
+import 'profile.dart';
 class SigninScreen extends StatefulWidget {
   const SigninScreen({super.key});
 
