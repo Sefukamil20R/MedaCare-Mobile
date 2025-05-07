@@ -17,14 +17,14 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final specialities = [
-      SpecialtyCard(image: 'assets/images/specialist.png', label: 'Cardiology'),
-      SpecialtyCard(image: 'assets/images/specialist.png', label: 'Dermatology'),
-      SpecialtyCard(image: 'assets/images/specialist.png', label: 'Neurology'),
-      SpecialtyCard(image: 'assets/images/specialist.png', label: 'Pediatrics'),
-      SpecialtyCard(image: 'assets/images/specialist.png', label: 'Orthopedics'),
-      SpecialtyCard(image: 'assets/images/specialist.png', label: 'Dentistry'),
-      SpecialtyCard(image: 'assets/images/specialist.png', label: 'ENT'),
-      SpecialtyCard(image: 'assets/images/specialist.png', label: 'Surgeon'),
+      SpecialtyCard(image: 'assets/images/general.png', label: 'Cardiology'),
+      SpecialtyCard(image: 'assets/images/Naphrologist.png', label: 'Naphrologist'),
+      SpecialtyCard(image: 'assets/images/Cardiology.png', label: 'Cardiology'),
+      SpecialtyCard(image: 'assets/images/Neurologist.png', label: 'Neurologist'),
+      SpecialtyCard(image: 'assets/images/Dentist.png', label: 'Dentist'),
+      SpecialtyCard(image: 'assets/images/Gynecologist.png', label: 'Gynecologist'),
+      SpecialtyCard(image: 'assets/images/Pediatrician.png', label: 'Pediatrician'),
+      SpecialtyCard(image: 'assets/images/surgeon.png', label: 'Surgeon'),
     ];
 
     final physicians = [
@@ -55,16 +55,13 @@ class HomePage extends StatelessWidget {
       backgroundColor: Colors.white,
       body: Stack(
         children: [
-          // Main Content
           Padding(
-            padding: const EdgeInsets.only(top: 180), // Adjust for fixed header and search bar
+            padding: const EdgeInsets.only(top: 180),
             child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 20),
-
-                  // Specialties Section
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Row(
@@ -84,9 +81,7 @@ class HomePage extends StatelessWidget {
                           ),
                         ),
                         GestureDetector(
-                          onTap: () {
-                            // Navigate to all specialties
-                          },
+                          onTap: () {},
                           child: const Text(
                             'View All',
                             style: TextStyle(
@@ -111,8 +106,6 @@ class HomePage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 24),
-
-                  // Recommended Physicians Section
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Row(
@@ -157,8 +150,6 @@ class HomePage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 24),
-
-                  // Recommended Institutions Section
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Row(
@@ -197,12 +188,12 @@ class HomePage extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   SizedBox(
-                    height: 200, // Increased height to avoid overflow
+                    height: 200,
                     child: ListView.separated(
                       scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: 16), // Add padding around the list
-                      itemCount: 3, // Number of cards
-                      separatorBuilder: (context, index) => const SizedBox(width: 12), // Space between cards
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      itemCount: 3,
+                      separatorBuilder: (context, index) => const SizedBox(width: 12),
                       itemBuilder: (context, index) {
                         final institutions = [
                           InstitutionCard(
@@ -222,50 +213,77 @@ class HomePage extends StatelessWidget {
                           ),
                         ];
                         return SizedBox(
-                          width: 200, // Fixed width for each card
+                          width: 200,
                           child: institutions[index],
                         );
                       },
                     ),
                   ),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 80), // Extra space so AI button doesn't overlap
                 ],
               ),
             ),
           ),
-
-          // Fixed Header (Top Greeting and Search Bar)
           Column(
             children: [
               Container(
                 color: const Color(0xFFEFF9FF),
                 padding: const EdgeInsets.all(16),
-                margin: const EdgeInsets.only(top: 30), // Adjust for status bar
+                margin: const EdgeInsets.only(top: 30),
                 child: const TopGreeting(),
               ),
-              const SizedBox(height: 10), // Space between header and search bar
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: const SearchBarWidget(),
+              const SizedBox(height: 10),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: SearchBarWidget(),
               ),
             ],
           ),
+          // AI Floating Button (Positioned above bottom nav)
+          Positioned(
+            bottom: 1, // distance from bottom of screen
+            right: 16,  // distance from right side
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Image.asset(
+                  'assets/images/ai_back.png',
+                  width: 60,
+                  height: 60,
+                  fit: BoxFit.cover,
+                ),
+                SizedBox(
+                  width: 36,
+                  height: 36,
+                  child: IconButton(
+                    padding: EdgeInsets.zero,
+                    icon: Image.asset('assets/images/ai_icon.png'),
+                    onPressed: () {
+                      // Handle AI button action
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
-
-      // Bottom Navigation Bar
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed, // Ensure labels are always visible
-        currentIndex: 0,
-        selectedItemColor: const Color(0xFF1D586E), // Active color
-        unselectedItemColor: Colors.black, // Black for unselected items
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: 'My Appointments'),
-          BottomNavigationBarItem(icon: Icon(Icons.people), label: 'All Doctors'),
-          BottomNavigationBarItem(icon: Icon(Icons.local_hospital), label: 'All Hospitals'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
-        ],
+      bottomNavigationBar: Container(
+        padding: const EdgeInsets.only(top: 10),
+        color: Colors.white,
+        child: BottomNavigationBar(
+          type: BottomNavigationBarType.fixed,
+          currentIndex: 0,
+          selectedItemColor: const Color(0xFF1D586E),
+          unselectedItemColor: Colors.black,
+          items: const [
+            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+            BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: 'My Appointments'),
+            BottomNavigationBarItem(icon: Icon(Icons.people), label: 'All Doctors'),
+            BottomNavigationBarItem(icon: Icon(Icons.local_hospital), label: 'All Hospitals'),
+            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+          ],
+        ),
       ),
     );
   }
