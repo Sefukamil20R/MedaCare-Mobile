@@ -5,7 +5,7 @@ class PhysicianCard extends StatelessWidget {
   final String name;
   final String specialization;
   final double rating;
-  final double experience;
+  final int experience;
 
   const PhysicianCard({
     super.key,
@@ -23,22 +23,30 @@ class PhysicianCard extends StatelessWidget {
     return Container(
       width: width,
       margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-      padding: const EdgeInsets.all(19), // Increased padding for more height
+      padding: const EdgeInsets.all(16), // Adjusted padding for better layout
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 6)],
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start, // Align items at the top
         children: [
           // Doctor's Image
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
-            child: Image.asset(
+            child: Image.network(
               image,
-              width: 80, // Slightly larger image
+              width: 80, // Adjusted image size
               height: 80,
               fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return const Icon(
+                  Icons.broken_image,
+                  size: 80,
+                  color: Colors.grey,
+                ); // Fallback for broken image URLs
+              },
             ),
           ),
           const SizedBox(width: 16),
@@ -55,6 +63,8 @@ class PhysicianCard extends StatelessWidget {
                     fontSize: 16,
                     color: Color(0xFF1C665E), // Custom color for name
                   ),
+                  overflow: TextOverflow.ellipsis, // Prevent text overflow
+                  maxLines: 1, // Limit to one line
                 ),
                 const SizedBox(height: 6),
                 // Specialization
@@ -65,6 +75,8 @@ class PhysicianCard extends StatelessWidget {
                     fontSize: 14,
                     color: Color(0xFF1C665E), // Custom color for specialization
                   ),
+                  overflow: TextOverflow.ellipsis, // Prevent text overflow
+                  maxLines: 1, // Limit to one line
                 ),
                 const SizedBox(height: 6),
                 // Experience
@@ -74,6 +86,8 @@ class PhysicianCard extends StatelessWidget {
                     fontSize: 12,
                     color: Colors.grey, // Very light color for experience
                   ),
+                  overflow: TextOverflow.ellipsis, // Prevent text overflow
+                  maxLines: 1, // Limit to one line
                 ),
               ],
             ),
@@ -89,7 +103,7 @@ class PhysicianCard extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                rating.toString(),
+                rating.toStringAsFixed(1), // Ensure one decimal place
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,

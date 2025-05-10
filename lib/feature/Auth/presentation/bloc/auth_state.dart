@@ -11,9 +11,18 @@ class AuthInitial extends AuthState {}
 
 class AuthLoading extends AuthState {}
 
-class VerifyLoading extends AuthState {} 
+class VerifyLoading extends AuthState {}
 
-class ResendEmailLoading extends AuthState {} 
+class ResendEmailLoading extends AuthState {}
+
+class ResendEmailSuccess extends AuthState {
+  final String message;
+
+  ResendEmailSuccess({this.message = 'Verification email resent successfully.'});
+
+  @override
+  List<Object?> get props => [message];
+}
 
 class AuthError extends AuthState {
   final String message;
@@ -64,7 +73,11 @@ class LoggedOutState extends AuthState {}
 
 class AuthMessage extends AuthState {
   final String message;
+
   AuthMessage(this.message);
+
+  @override
+  List<Object?> get props => [message];
 }
 
 class ProfileCompletionLoading extends AuthState {}
@@ -75,6 +88,9 @@ class ProfileCompletionError extends AuthState {
   final String message;
 
   ProfileCompletionError(this.message);
+
+  @override
+  List<Object?> get props => [message];
 }
 
 class NavigateToLoginState extends AuthState {}

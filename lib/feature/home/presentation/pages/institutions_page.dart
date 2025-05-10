@@ -1,41 +1,16 @@
 import 'package:flutter/material.dart';
-import '../widget/recommended_institutions.dart'; // Import InstitutionCard widget
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../bloc/home_bloc.dart';
+import '../bloc/home_state.dart';
+import '../widget/recommended_institutions.dart';
 import '../widget/search_bar_widget.dart';
-import 'instutuitions_detal.dart'; // Import Institution Details Page
+import 'instutuitions_detal.dart';
 
 class InstitutionsPage extends StatelessWidget {
   const InstitutionsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final dummyData = [
-      InstitutionCard(
-        image: 'assets/images/inst.png',
-        name: 'MedaCare International Hospital',
-        specialization: 'Multi Super Specialty Hospital',
-        location: 'Addis Ababa, Ethiopia',
-      ),
-      InstitutionCard(
-        image: 'assets/images/inst.png',
-        name: 'Unity Medical Center',
-        specialization: 'General Hospital',
-        location: 'Bole, Addis Ababa',
-      ),
-      InstitutionCard(
-        image: 'assets/images/inst.png',
-        name: 'Tikur Anbessa Hospital',
-        specialization: 'Teaching Hospital',
-        location: 'Piazza, Addis Ababa',
-      ),
-       InstitutionCard(
-        image: 'assets/images/inst.png',
-        name: 'Tikur Anbessa Hospital',
-        specialization: 'Teaching Hospital',
-        location: 'Piazza, Addis Ababa',
-      ),
-      // Add more dummy data as needed
-    ];
-
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -57,32 +32,60 @@ class InstitutionsPage extends StatelessWidget {
             child: SearchBarWidget(),
           ),
           Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: dummyData.length,
-              itemBuilder: (context, index) {
-                // Wrap the InstitutionCard in a GestureDetector
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const InstitutionDetailsPage(), // Navigate to Institution Details Page
-                      ),
-                    );
-                  },
-                  child: dummyData[index],
-                );
+            child: BlocBuilder<HomeBloc, HomeState>(
+              builder: (context, state) {
+                if (state is HomeLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (state is AllInstitutionsLoaded) {
+                  final institutions = state.institutions;
+
+                  if (institutions.isEmpty) {
+                    return const Center(child: Text('No institutions available.'));
+                  }
+
+                  return ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    itemCount: institutions.length,
+                    itemBuilder: (context, index) {
+                      final institution = institutions[index];
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => InstitutionDetailsPage(
+                                image: 'assets/images/inst.png',
+                                name: institution.name,
+                                specialization: institution.offeredSpecializations,
+                                location: '${institution.subCityOrDistrict}, ${institution.regionOrState}',
+                              ),
+                            ),
+                          );
+                        },
+                        child: InstitutionCard(
+                          image: 'assets/images/inst.png',
+                          name: institution.name,
+                          specialization: institution.offeredSpecializations,
+                          location: '${institution.subCityOrDistrict}, ${institution.regionOrState}',
+                        ),
+                      );
+                    },
+                  );
+                } else if (state is HomeError) {
+                  return Center(child: Text(state.message));
+                }
+
+                return const SizedBox.shrink();
               },
             ),
           ),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed, // Ensure labels are always visible
+        type: BottomNavigationBarType.fixed,
         currentIndex: 3,
-        selectedItemColor: const Color(0xFF1D586E), // Active color
-        unselectedItemColor: Colors.black, // Black for unselected items
+        selectedItemColor: const Color(0xFF1D586E),
+        unselectedItemColor: Colors.black,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: 'My Appointments'),

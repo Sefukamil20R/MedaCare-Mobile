@@ -3,7 +3,18 @@ import '../widget/recommended_institutions.dart'; // Import InstitutionCard widg
 import '../widget/reviewcard.dart'; // Import ReviewCard widget
 
 class InstitutionDetailsPage extends StatelessWidget {
-  const InstitutionDetailsPage({super.key});
+  final String image;
+  final String name;
+  final String location;
+  final String specialization;
+
+  const InstitutionDetailsPage({
+    super.key,
+    required this.image,
+    required this.name,
+    required this.location,
+    required this.specialization,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -31,11 +42,11 @@ class InstitutionDetailsPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Institution Card
-            const InstitutionCard(
-              image: 'assets/images/inst.png',
-              name: 'Addis Care Hospital',
-              location: 'Addis Ababa, Ethiopia',
-              specialization: 'Multi Super Specialty Hospital',
+            InstitutionCard(
+              image: image,
+              name: name,
+              location: location,
+              specialization: specialization,
             ),
             const SizedBox(height: 26),
 
@@ -73,7 +84,6 @@ class InstitutionDetailsPage extends StatelessWidget {
                       'CALL',
                       style: TextStyle(color: Colors.white),
                     ),
-                    
                   ),
                 ),
               ],

@@ -1,9 +1,22 @@
 import 'package:flutter/material.dart';
 import '../widget/recommended_doctors.dart';
-import '../widget/reviewcard.dart'; 
+import '../widget/reviewcard.dart';
 
 class PhysicianDetailsPage extends StatelessWidget {
-  const PhysicianDetailsPage({super.key});
+  final String image;
+  final String name;
+  final String specialization;
+  final double rating;
+  final int experience;
+
+  const PhysicianDetailsPage({
+    super.key,
+    required this.image,
+    required this.name,
+    required this.specialization,
+    required this.rating,
+    required this.experience,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -31,12 +44,12 @@ class PhysicianDetailsPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Physician Card
-            const PhysicianCard(
-              image: 'assets/images/Doctor.png',
-              name: 'Dr. Abeba Kebede',
-              specialization: 'Cardiologist',
-              rating: 4.5,
-              experience: 12,
+            PhysicianCard(
+              image: image,
+              name: name,
+              specialization: specialization,
+              rating: rating,
+              experience: experience,
             ),
             const SizedBox(height: 16),
 
