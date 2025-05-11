@@ -1,30 +1,50 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/home_bloc.dart';
+import '../bloc/home_event.dart';
 import '../bloc/home_state.dart';
 import '../widget/recommended_institutions.dart';
 import '../widget/search_bar_widget.dart';
 import 'instutuitions_detal.dart';
 
-class InstitutionsPage extends StatelessWidget {
+class InstitutionsPage extends StatefulWidget {
   const InstitutionsPage({super.key});
+
+  @override
+  _InstitutionsPageState createState() => _InstitutionsPageState();
+}
+
+class _InstitutionsPageState extends State<InstitutionsPage> {
+  @override
+  void initState() {
+    super.initState();
+    // Dispatch the event to fetch all institutions
+    context.read<HomeBloc>().add(GetAllInstitutionsEvent());
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFEFF9FF),
-        elevation: 0,
-        title: const Text(
-          'All Institutions',
-          style: TextStyle(
-            color: Color(0xFF1C665E),
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        centerTitle: false,
-      ),
+  backgroundColor: const Color(0xFFEFF9FF),
+  elevation: 0,
+  leading: IconButton(
+    icon: const Icon(Icons.arrow_back, color: Color(0xFF1C665E)),
+    onPressed: () {
+      Navigator.pop(context, true); // Send signal to refresh on HomePage
+    },
+  ),
+  title: const Text(
+    'All Institutions',
+    style: TextStyle(
+      color: Color(0xFF1C665E),
+      fontWeight: FontWeight.bold,
+    ),
+  ),
+  centerTitle: false,
+),
+
       body: Column(
         children: [
           const Padding(
@@ -54,7 +74,7 @@ class InstitutionsPage extends StatelessWidget {
                             context,
                             MaterialPageRoute(
                               builder: (context) => InstitutionDetailsPage(
-                                image: 'assets/images/inst.png',
+                                image: institution.companyLogo ?? 'assets/images/inst.png',
                                 name: institution.name,
                                 specialization: institution.offeredSpecializations,
                                 location: '${institution.subCityOrDistrict}, ${institution.regionOrState}',
@@ -63,7 +83,7 @@ class InstitutionsPage extends StatelessWidget {
                           );
                         },
                         child: InstitutionCard(
-                          image: 'assets/images/inst.png',
+                          image: institution.companyLogo ?? 'assets/images/inst.png',
                           name: institution.name,
                           specialization: institution.offeredSpecializations,
                           location: '${institution.subCityOrDistrict}, ${institution.regionOrState}',

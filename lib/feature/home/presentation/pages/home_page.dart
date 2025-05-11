@@ -23,13 +23,12 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  @override
-  void initState() {
-    super.initState();
+ @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Re-dispatch events to fetch recommended physicians and institutions
     context.read<HomeBloc>().add(GetRecommendedPhysiciansEvent());
-    Future.delayed(const Duration(milliseconds: 500), () {
-      context.read<HomeBloc>().add(GetRecommendedInstitutionsEvent());
-    });
+    context.read<HomeBloc>().add(GetRecommendedInstitutionsEvent());
   }
 
   @override
@@ -138,12 +137,18 @@ class _HomePageState extends State<HomePage> {
                                       ),
                                     ),
                                     GestureDetector(
-                                      onTap: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(builder: (context) => const DoctorsPage()),
-                                        );
-                                      },
+                                      onTap: () async {
+  final shouldRefresh = await Navigator.push(
+    context,
+    MaterialPageRoute(builder: (context) => const DoctorsPage()),
+  );
+
+  if (shouldRefresh == true) {
+    context.read<HomeBloc>().add(GetRecommendedPhysiciansEvent());
+    context.read<HomeBloc>().add(GetRecommendedInstitutionsEvent());
+  }
+},
+
                                       child: const Text(
                                         'View All',
                                         style: TextStyle(
@@ -195,12 +200,18 @@ class _HomePageState extends State<HomePage> {
                                       ),
                                     ),
                                     GestureDetector(
-                                      onTap: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(builder: (context) => const InstitutionsPage()),
-                                        );
-                                      },
+                                      onTap: () async {
+  final shouldRefresh = await Navigator.push(
+    context,
+    MaterialPageRoute(builder: (context) => const InstitutionsPage()),
+  );
+
+  if (shouldRefresh == true) {
+    context.read<HomeBloc>().add(GetRecommendedPhysiciansEvent());
+    context.read<HomeBloc>().add(GetRecommendedInstitutionsEvent());
+  }
+},
+
                                       child: const Text(
                                         'View All',
                                         style: TextStyle(
@@ -225,7 +236,7 @@ class _HomePageState extends State<HomePage> {
                                     return SizedBox(
                                       width: 200,
                                       child: InstitutionCard(
-                                        image: 'assets/images/inst.png', // Replace with institution image if available
+                                        image: institution.companyLogo ?? 'assets/images/inst.png',
                                         name: institution.name,
                                         location: '${institution.subCityOrDistrict}, ${institution.regionOrState}',
                                         specialization: institution.offeredSpecializations,

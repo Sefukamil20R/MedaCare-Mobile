@@ -16,7 +16,7 @@ class InstitutionEntity {
   final String offeredServices; // New field
   final String availableFacilities; // New field
   final String offeredSpecializations; // New field
-
+  final String? companyLogo; // New field
   InstitutionEntity({
     required this.id,
     required this.name,
@@ -35,5 +35,6 @@ class InstitutionEntity {
     required this.offeredServices,
     required this.availableFacilities,
     required this.offeredSpecializations,
+    this.companyLogo,
   });
 }

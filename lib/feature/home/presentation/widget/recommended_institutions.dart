@@ -37,7 +37,7 @@ class InstitutionCard extends StatelessWidget {
             aspectRatio: 16 / 9, // Maintain a 16:9 aspect ratio
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: Image.asset(
+              child: Image.network(
                 image,
                 width: double.infinity,
                 fit: BoxFit.cover, // Ensure the image covers the space without stretching

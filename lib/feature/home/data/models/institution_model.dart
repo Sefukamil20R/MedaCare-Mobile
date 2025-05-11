@@ -18,6 +18,7 @@ class InstitutionModel {
   final String offeredServices;
   final String availableFacilities;
   final String offeredSpecializations;
+  final String? companyLogo;
 
   InstitutionModel({
     required this.id,
@@ -37,6 +38,7 @@ class InstitutionModel {
     required this.offeredServices,
     required this.availableFacilities,
     required this.offeredSpecializations,
+    this.companyLogo,
   });
 
   factory InstitutionModel.fromJson(Map<String, dynamic> json) {
@@ -58,6 +60,7 @@ class InstitutionModel {
       offeredServices: json['offeredServices'],
       availableFacilities: json['availableFacilities'],
       offeredSpecializations: json['offeredSpecializations'],
+      companyLogo: json['companyLogo'] ?? 'assets/images/inst.png',
     );
   }
 
@@ -80,6 +83,7 @@ class InstitutionModel {
       offeredServices: offeredServices,
       availableFacilities: availableFacilities,
       offeredSpecializations: offeredSpecializations,
+      companyLogo: companyLogo ?? 'assets/images/inst.png',
     );
   }
 }

@@ -1,30 +1,50 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/home_bloc.dart';
+import '../bloc/home_event.dart';
 import '../bloc/home_state.dart';
 import '../widget/recommended_doctors.dart';
 import '../widget/search_bar_widget.dart';
 import 'doctors_detail.dart';
 
-class DoctorsPage extends StatelessWidget {
+class DoctorsPage extends StatefulWidget {
   const DoctorsPage({super.key});
+
+  @override
+  _DoctorsPageState createState() => _DoctorsPageState();
+}
+
+class _DoctorsPageState extends State<DoctorsPage> {
+  @override
+  void initState() {
+    super.initState();
+    // Dispatch the event to fetch all physicians
+    context.read<HomeBloc>().add(GetAllPhysiciansEvent());
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFEFF9FF),
-        elevation: 0,
-        title: const Text(
-          'All Physicians',
-          style: TextStyle(
-            color: Color(0xFF1C665E),
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        centerTitle: false,
-      ),
+  backgroundColor: const Color(0xFFEFF9FF),
+  elevation: 0,
+  leading: IconButton(
+    icon: const Icon(Icons.arrow_back, color: Color(0xFF1C665E)),
+    onPressed: () {
+      Navigator.pop(context, true); // Send signal to refresh on HomePage
+    },
+  ),
+  title: const Text(
+    'All Physicians',
+    style: TextStyle(
+      color: Color(0xFF1C665E),
+      fontWeight: FontWeight.bold,
+    ),
+  ),
+  centerTitle: false,
+),
+
       body: Column(
         children: [
           const Padding(
