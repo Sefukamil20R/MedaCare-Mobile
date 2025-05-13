@@ -17,6 +17,10 @@ class InstitutionEntity {
   final String availableFacilities; // New field
   final String offeredSpecializations; // New field
   final String? companyLogo; // New field
+   final String? businessDocumentUrl; // Nullable
+  final String? medicalLicenseUrl; // Nullable
+
+  
   InstitutionEntity({
     required this.id,
     required this.name,
@@ -36,5 +40,7 @@ class InstitutionEntity {
     required this.availableFacilities,
     required this.offeredSpecializations,
     this.companyLogo,
+    this.businessDocumentUrl,
+    this.medicalLicenseUrl,
   });
 }

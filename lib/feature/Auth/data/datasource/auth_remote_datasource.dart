@@ -171,6 +171,12 @@ Future<void> completePatientProfile(Map<String, dynamic> profileData) async {
       print('Error: Authorization token is null.');
       throw Exception('Authorization token is missing. Please log in again.');
     }
+   // 🔍 Log the profile data (original map)
+    print('📦 Raw profileData map: $profileData');
+
+    // 🔍 Log the encoded JSON body
+    final encodedBody = jsonEncode(profileData);
+    print('🧾 Encoded JSON body: $encodedBody');
 
     print('Sending profile data: $profileData');
     final response = await client.post(

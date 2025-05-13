@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/home_bloc.dart';
 import '../bloc/home_event.dart';
 import '../bloc/home_state.dart';
+import '../widget/ai_assist_modal.dart';
 import '../widget/recommended_doctors.dart';
 import '../widget/recommended_institutions.dart';
 import '../widget/search_bar_widget.dart';
@@ -295,8 +296,14 @@ class _HomePageState extends State<HomePage> {
                     padding: EdgeInsets.zero,
                     icon: Image.asset('assets/images/ai_icon.png'),
                     onPressed: () {
-                      // Handle AI button action
-                    },
+showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) => const AIAssistModal(),
+    );                    },
                   ),
                 ),
               ],
