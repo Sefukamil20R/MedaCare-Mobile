@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'Screens/splash.dart';
+import 'feature/Auth/data/services/auth_service.dart';
 import 'feature/Auth/domain/usecase/ResendVerificationEmailUseCase.dart';
 import 'feature/Auth/domain/usecase/completeprofile.dart';
 import 'feature/Auth/domain/usecase/get_user_profile_usecase.dart';
@@ -17,7 +18,11 @@ import 'feature/Auth/presentation/pages/verify_Success.dart';
 import 'feature/home/presentation/pages/home_page.dart';
 import 'feature/home/presentation/pages/booking.dart';
 import 'injection_container.dart';
-
+import 'feature/home/presentation/bloc/home_bloc.dart';
+import 'feature/home/domain/usecases/get_all_institutions.dart';
+import 'feature/home/domain/usecases/get_all_physicians.dart';
+import 'feature/home/domain/usecases/get_recommended_institutions.dart';
+import 'feature/home/domain/usecases/get_recommended_physicians.dart';
 
 
 class MedaCareApp extends StatelessWidget {
@@ -36,7 +41,17 @@ class MedaCareApp extends StatelessWidget {
             loginUserUseCase: sl<LoginUserUseCase>(),
             getUserProfileUseCase: sl<GetUserProfileUseCase>(),
             logoutUseCase: sl<LogoutUseCase>(),
-            resendVerificationEmailUseCase: sl<ResendVerificationEmailUseCase>(), completePatientProfileUseCase: sl<CompletePatientProfileUseCase>(), // Add this line
+            resendVerificationEmailUseCase: sl<ResendVerificationEmailUseCase>(),
+            completePatientProfileUseCase: sl<CompletePatientProfileUseCase>(),
+          ),
+        ),
+        BlocProvider<HomeBloc>(
+          create: (context) => HomeBloc(
+            getRecommendedInstitutions: sl<GetRecommendedInstitutions>(),
+            getRecommendedPhysicians: sl<GetRecommendedPhysicians>(),
+            getAllInstitutions: sl<GetAllInstitutions>(),
+            getAllPhysicians: sl<GetAllPhysicians>(),
+            // authService: sl<AuthService>(),
           ),
         ),
       ],
@@ -48,11 +63,11 @@ class MedaCareApp extends StatelessWidget {
           '/signup': (context) => SignupScreen(),
           '/signin': (context) => SigninScreen(),
           '/verify_success': (context) => VerificationSuccessScreen(),
-          '/profile': (context) => ProfileDetailsPage(), // Add profile page route
-          '/complete_profile': (context) => CompleteProfilePage(), 
-          '/home':(context) =>HomePage(),
-          '/booking': (context) => BookingPage(), // Add booking page route
-        }, // Close routes map
+          '/profile': (context) => ProfileDetailsPage(),
+          '/complete_profile': (context) => CompleteProfilePage(),
+          '/home': (context) => HomePage(),
+          '/booking': (context) => BookingPage(),
+        },
       ),
     );
   }

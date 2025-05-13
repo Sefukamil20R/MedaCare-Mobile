@@ -1,61 +1,50 @@
 import 'package:flutter/material.dart';
-import 'dart:ui';
-
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../bloc/home_bloc.dart';
+import '../bloc/home_event.dart';
+import '../bloc/home_state.dart';
 import '../widget/recommended_doctors.dart';
 import '../widget/search_bar_widget.dart';
-import 'doctors_detail.dart'; // Import the Doctor Details Page
+import 'doctors_detail.dart';
 
-class DoctorsPage extends StatelessWidget {
+class DoctorsPage extends StatefulWidget {
   const DoctorsPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final dummyData = [
-      PhysicianCard(
-        image: 'assets/images/Doctor.png',
-        name: 'Dr. John Doe',
-        specialization: 'Cardiologist',
-        rating: 4.5,
-        experience: 10,
-      ),
-      PhysicianCard(
-        image: 'assets/images/Doctor.png',
-        name: 'Dr. Jane Smith',
-        specialization: 'Dermatologist',
-        rating: 4.8,
-        experience: 8,
-      ),
-      PhysicianCard(
-        image: 'assets/images/Doctor.png',
-        name: 'Dr. Jane Smith',
-        specialization: 'Dermatologist',
-        rating: 4.8,
-        experience: 8,
-      ),
-      PhysicianCard(
-        image: 'assets/images/Doctor.png',
-        name: 'Dr. Jane Smith',
-        specialization: 'Dermatologist',
-        rating: 4.8,
-        experience: 8,
-      ),
-      // Add more dummy data as needed
-    ];
+  _DoctorsPageState createState() => _DoctorsPageState();
+}
 
+class _DoctorsPageState extends State<DoctorsPage> {
+  @override
+  void initState() {
+    super.initState();
+    // Dispatch the event to fetch all physicians
+    context.read<HomeBloc>().add(GetAllPhysiciansEvent());
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFEFF9FF),
-        elevation: 0,
-        title: const Text(
-          'ALL Physicians',
-          style: TextStyle(
-            color: Color(0xFF1C665E),
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        centerTitle: false,
-      ),
+  backgroundColor: const Color(0xFFEFF9FF),
+  elevation: 0,
+  leading: IconButton(
+    icon: const Icon(Icons.arrow_back, color: Color(0xFF1C665E)),
+    onPressed: () {
+      Navigator.pop(context, true); // Send signal to refresh on HomePage
+    },
+  ),
+  title: const Text(
+    'All Physicians',
+    style: TextStyle(
+      color: Color(0xFF1C665E),
+      fontWeight: FontWeight.bold,
+    ),
+  ),
+  centerTitle: false,
+),
+
       body: Column(
         children: [
           const Padding(
@@ -63,32 +52,62 @@ class DoctorsPage extends StatelessWidget {
             child: SearchBarWidget(),
           ),
           Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: dummyData.length,
-              itemBuilder: (context, index) {
-                // Wrap the PhysicianCard in a GestureDetector
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const PhysicianDetailsPage(), // Navigate to Doctor Details Page
-                      ),
-                    );
-                  },
-                  child: dummyData[index],
-                );
+            child: BlocBuilder<HomeBloc, HomeState>(
+              builder: (context, state) {
+                if (state is HomeLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (state is AllPhysiciansLoaded) {
+                  final physicians = state.physicians;
+
+                  if (physicians.isEmpty) {
+                    return const Center(child: Text('No physicians available.'));
+                  }
+
+                  return ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    itemCount: physicians.length,
+                    itemBuilder: (context, index) {
+                      final physician = physicians[index];
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => PhysicianDetailsPage(
+                                image: physician.profilePhotoUrl ?? 'assets/images/Doctor.png',
+                                name: '${physician.firstName} ${physician.lastName}',
+                                specialization: physician.specialization,
+                                rating: physician.rating,
+                                experience: physician.experience,
+                              ),
+                            ),
+                          );
+                        },
+                        child: PhysicianCard(
+                          image: physician.profilePhotoUrl ?? 'assets/images/Doctor.png',
+                          name: '${physician.firstName} ${physician.lastName}',
+                          specialization: physician.specialization,
+                          rating: physician.rating,
+                          experience: physician.experience,
+                        ),
+                      );
+                    },
+                  );
+                } else if (state is HomeError) {
+                  return Center(child: Text(state.message));
+                }
+
+                return const SizedBox.shrink();
               },
             ),
           ),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed, // Ensure labels are always visible
+        type: BottomNavigationBarType.fixed,
         currentIndex: 2,
-        selectedItemColor: const Color(0xFF1D586E), // Active color
-        unselectedItemColor: Colors.black, // Black for unselected items
+        selectedItemColor: const Color(0xFF1D586E),
+        unselectedItemColor: Colors.black,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: 'My Appointments'),

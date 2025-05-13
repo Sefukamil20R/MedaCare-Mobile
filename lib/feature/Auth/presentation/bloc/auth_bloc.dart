@@ -8,10 +8,10 @@ import '../../domain/usecase/logout_usecase.dart';
 import '../../domain/usecase/register_user_usecase.dart';
 import '../../domain/usecase/verify_email_usecase.dart';
 
-
 import 'auth_event.dart';
 import 'auth_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final RegisterUserUseCase registerUserUseCase;
   final VerifyEmailUseCase verifyEmailUseCase;
@@ -43,8 +43,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthLoading());
     final result = await registerUserUseCase.call(event.user);
     result.fold(
-      (failure) => emit(AuthError(failure.message)),
-      (user) => emit(RegisteredState(user)),
+      (failure) {
+        print('Register API Error: ${failure.message}');
+        emit(AuthError(failure.message));
+      },
+      (user) {
+        print('Register API Success: User registered successfully');
+        emit(RegisteredState(user));
+      },
     );
   }
 
@@ -52,8 +58,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(VerifyLoading());
     final result = await verifyEmailUseCase.call(event.email, event.token);
     result.fold(
-      (failure) => emit(AuthError(failure.message)),
+      (failure) {
+        print('Verify Email API Error: ${failure.message}');
+        emit(AuthError(failure.message));
+      },
       (jwt) {
+        print('Verify Email API Success: JWT Token: $jwt');
         emit(EmailVerifiedState(jwt));
         // After verification, navigate to the login page
         emit(NavigateToLoginState());
@@ -62,42 +72,48 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   Future<void> _onLoginUser(LoginUserEvent event, Emitter<AuthState> emit) async {
-  emit(AuthLoading()); // Emit loading state
-  try {
-    final result = await loginUserUseCase.call(event.email, event.password);
+    emit(AuthLoading()); // Emit loading state
+    try {
+      final result = await loginUserUseCase.call(event.email, event.password);
 
-    await result.fold(
-      (failure) async {
-        print('Login failed: ${failure.message}');
-        emit(AuthError(failure.message)); // Emit error state
-      },
-      (jwt) async {
-        if (jwt == null || jwt.isEmpty) {
-          print('Error: Received null or empty JWT token');
-          emit(AuthError('Login failed: Invalid token received')); // Emit error state
-          return;
-        }
+      await result.fold(
+        (failure) async {
+          print('Login API Error: ${failure.message}');
+          emit(AuthError(failure.message)); // Emit error state
+        },
+        (jwt) async {
+          if (jwt == null || jwt.isEmpty) {
+            print('Login API Error: Received null or empty JWT token');
+            emit(AuthError('Login failed: Invalid token received')); // Emit error state
+            return;
+          }
 
-        // Save the token locally
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('jwt_token', jwt);
+          // Save the token locally
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString('jwt_token', jwt);
 
-        print('Login successful. JWT token saved: $jwt');
-        emit(LoggedInState(jwt)); // Emit success state
-      },
-    );
-  } catch (e) {
-    print('Unexpected error during login: $e');
-    emit(AuthError('Unexpected error occurred during login.')); // Emit error state
+          print('Login API Success: JWT token saved: $jwt');
+          emit(LoggedInState(jwt)); // Emit success state
+        },
+      );
+    } catch (e) {
+      print('Unexpected error during login: $e');
+      emit(AuthError('Unexpected error occurred during login.')); // Emit error state
+    }
   }
-}
 
   Future<void> _onGetProfile(GetUserProfileEvent event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
     final result = await getUserProfileUseCase.call();
     result.fold(
-      (failure) => emit(AuthError(failure.message)),
-      (user) => emit(UserProfileLoadedState(user)),
+      (failure) {
+        print('Get Profile API Error: ${failure.message}');
+        emit(AuthError(failure.message));
+      },
+      (user) {
+        print('Get Profile API Success: User profile loaded');
+        emit(UserProfileLoadedState(user));
+      },
     );
   }
 
@@ -105,8 +121,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthLoading());
     final result = await logoutUseCase.call();
     result.fold(
-      (failure) => emit(AuthError(failure.message)),
-      (_) => emit(LoggedOutState()),
+      (failure) {
+        print('Logout API Error: ${failure.message}');
+        emit(AuthError(failure.message));
+      },
+      (_) {
+        print('Logout API Success: User logged out');
+        emit(LoggedOutState());
+      },
     );
   }
 
@@ -115,7 +137,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(ResendEmailLoading());
     try {
       await resendVerificationEmailUseCase.call(event.email);
+      print('Resend Verification Email API Success: Email resent successfully');
+      emit(ResendEmailSuccess());
     } catch (e) {
+      print('Resend Verification Email API Error: $e');
       emit(AuthError(e.toString()));
     }
   }
@@ -125,10 +150,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(ProfileCompletionLoading());
     try {
       await completePatientProfileUseCase.call(event.profileData);
+      print('Complete Profile API Success: Profile completed successfully');
       emit(ProfileCompletionSuccess());
       // After completing the profile, navigate to the home page
       emit(NavigateToHomeState());
     } catch (e) {
+      print('Complete Profile API Error: $e');
       emit(ProfileCompletionError(e.toString()));
     }
   }
