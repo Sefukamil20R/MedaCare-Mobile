@@ -74,6 +74,7 @@ class _DoctorsPageState extends State<DoctorsPage> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => PhysicianDetailsPage(
+                                id: physician.id, // Pass the physician ID
                                 image: physician.profilePhotoUrl ?? 'assets/images/Doctor.png',
                                 name: '${physician.firstName} ${physician.lastName}',
                                 specialization: physician.specialization,

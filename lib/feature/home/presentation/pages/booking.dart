@@ -1,255 +1,532 @@
+// import 'package:flutter/material.dart';
+// import 'package:flutter_bloc/flutter_bloc.dart';
+// import '../bloc/booking_bloc.dart';
+// import 'payment_webview_page.dart'; // Import your WebView page
+
+// class BookingPage extends StatefulWidget {
+//   final int physicianId;
+
+//   const BookingPage({super.key, required this.physicianId});
+
+//   @override
+//   State<BookingPage> createState() => _BookingPageState();
+// }
+
+// class _BookingPageState extends State<BookingPage> {
+//   String? selectedDate;
+//   int? selectedDuration;
+//   int? selectedSlotId;
+
+//   @override
+//   void initState() {
+//     super.initState();
+//     WidgetsBinding.instance.addPostFrameCallback((_) {
+//       context.read<BookingBloc>().add(FetchAvailableDatesEvent(widget.physicianId));
+//     });
+//   }
+
+//   void _fetchAvailableSlots() {
+//     if (selectedDate != null && selectedDuration != null) {
+//       context.read<BookingBloc>().add(
+//             FetchAvailableSlotsEvent(
+//               widget.physicianId,
+//               selectedDate!,
+//               selectedDuration!,
+//             ),
+//           );
+//     }
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       backgroundColor: const Color(0xFFE7F5FC),
+//       appBar: AppBar(
+//         backgroundColor: const Color(0xFFE7F5FC),
+//         elevation: 0,
+//         leading: IconButton(
+//           icon: const Icon(Icons.arrow_back, color: Colors.black),
+//           onPressed: () => Navigator.pop(context),
+//         ),
+//         title: const Text(
+//           'Schedule Physician',
+//           style: TextStyle(
+//             color: Colors.black,
+//             fontWeight: FontWeight.w600,
+//           ),
+//         ),
+//         centerTitle: false,
+//       ),
+//       body: BlocBuilder<BookingBloc, BookingState>(
+//         builder: (context, state) {
+//           if (state is BookingLoading) {
+//             return const Center(child: CircularProgressIndicator());
+//           } else if (state is AvailableDatesLoaded) {
+//             return _buildBookingContent(context, state.dates, null, null);
+//           } else if (state is AvailableSlotsLoaded) {
+//             return _buildBookingContent(context, null, state.slots, null);
+//           } else if (state is PaymentUrlLoaded) {
+//             // Navigate to WebView automatically
+//             WidgetsBinding.instance.addPostFrameCallback((_) {
+//               Navigator.push(
+//                 context,
+//                 MaterialPageRoute(
+//                   builder: (_) => PaymentWebViewPage(paymentUrl: state.paymentUrl, slotId: selectedSlotId!),
+//                 ),
+//               );
+//             });
+//             return const Center(child: Text("Redirecting to payment..."));
+//           } else if (state is BookingError) {
+//             return Center(child: Text(state.message));
+//           }
+//           return const SizedBox.shrink();
+//         },
+//       ),
+//     );
+//   }
+
+//   Widget _buildBookingContent(
+//     BuildContext context,
+//     List<String>? availableDates,
+//     List<Map<String, dynamic>>? slots,
+//     String? _,
+//   ) {
+//     return SingleChildScrollView(
+//       padding: const EdgeInsets.all(16.0),
+//       child: Column(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           if (availableDates != null) ...[
+//             const Text('Choose A Date'),
+//             const SizedBox(height: 8),
+//             SizedBox(
+//               height: 40,
+//               child: ListView.builder(
+//                 scrollDirection: Axis.horizontal,
+//                 itemCount: availableDates.length,
+//                 itemBuilder: (context, index) {
+//                   final date = availableDates[index];
+//                   return Padding(
+//                     padding: const EdgeInsets.only(right: 8),
+//                     child: ChoiceChip(
+//                       label: Text(date),
+//                       selected: selectedDate == date,
+//                       onSelected: (selected) {
+//                         setState(() {
+//                           selectedDate = date;
+//                           selectedDuration = null;
+//                           selectedSlotId = null;
+//                         });
+//                       },
+//                     ),
+//                   );
+//                 },
+//               ),
+//             ),
+//             const SizedBox(height: 16),
+//           ],
+
+//           if (selectedDate != null) ...[
+//             const Text('Choose Duration'),
+//             const SizedBox(height: 8),
+//             Row(
+//               children: [
+//                 Expanded(
+//                   child: Container(
+//                     decoration: BoxDecoration(
+//                       border: Border.all(
+//                         color: selectedDuration == 30 ? Colors.blue : Colors.grey,
+//                       ),
+//                       borderRadius: BorderRadius.circular(12),
+//                       color: Colors.white,
+//                     ),
+//                     child: TextButton(
+//                       onPressed: () {
+//                         setState(() {
+//                           selectedDuration = 30;
+//                           _fetchAvailableSlots();
+//                         });
+//                       },
+//                       child: const Text(
+//                         '30 Min\nQuick Consultation',
+//                         textAlign: TextAlign.center,
+//                       ),
+//                     ),
+//                   ),
+//                 ),
+//                 const SizedBox(width: 10),
+//                 Expanded(
+//                   child: Container(
+//                     decoration: BoxDecoration(
+//                       border: Border.all(
+//                         color: selectedDuration == 60 ? Colors.blue : Colors.grey,
+//                       ),
+//                       borderRadius: BorderRadius.circular(12),
+//                       color: Colors.white,
+//                     ),
+//                     child: TextButton(
+//                       onPressed: () {
+//                         setState(() {
+//                           selectedDuration = 60;
+//                           _fetchAvailableSlots();
+//                         });
+//                       },
+//                       child: const Text(
+//                         '60 Min\nStandard Consultation',
+//                         textAlign: TextAlign.center,
+//                       ),
+//                     ),
+//                   ),
+//                 ),
+//               ],
+//             ),
+//             const SizedBox(height: 16),
+//           ],
+
+//           if (slots != null) ...[
+//             const Text('Select A Time Slot'),
+//             const SizedBox(height: 8),
+//             ListView.builder(
+//               shrinkWrap: true,
+//               physics: const NeverScrollableScrollPhysics(),
+//               itemCount: slots.length,
+//               itemBuilder: (context, index) {
+//                 final slot = slots[index];
+//                 return ListTile(
+//                   title: Text('${slot['startTime']} - ${slot['endTime']}'),
+//                   selected: selectedSlotId == slot['id'],
+//                   onTap: () {
+//                     setState(() {
+//                       selectedSlotId = slot['id'];
+//                     });
+//                   },
+//                 );
+//               },
+//             ),
+//             const SizedBox(height: 16),
+//           ],
+
+//           if (selectedSlotId != null) ...[
+//             SizedBox(
+//               width: double.infinity,
+//               child: ElevatedButton(
+//                 onPressed: () {
+//                   context.read<BookingBloc>().add(BookSlotEvent(selectedSlotId!));
+//                 },
+//                 style: ElevatedButton.styleFrom(
+//                   backgroundColor: const Color(0xFF8C2F39),
+//                   shape: RoundedRectangleBorder(
+//                     borderRadius: BorderRadius.circular(6),
+//                   ),
+//                 ),
+//                 child: const Text(
+//                   'PROCEED',
+//                   style: TextStyle(color: Colors.white),
+//                 ),
+//               ),
+//             ),
+//           ],
+//         ],
+//       ),
+//     );
+//   }
+// }
 import 'package:flutter/material.dart';
-import '../widget/recommended_doctors.dart'; // Import PhysicianCard widget
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../bloc/booking_bloc.dart';
+import 'payment_webview_page.dart';
 
 class BookingPage extends StatefulWidget {
-  const BookingPage({super.key});
+  final int physicianId;
+
+  const BookingPage({super.key, required this.physicianId});
 
   @override
   State<BookingPage> createState() => _BookingPageState();
 }
 
 class _BookingPageState extends State<BookingPage> {
-  List<String> dates = ['Today', 'Tomorrow', '12 June', '13 June', '14 June'];
-  int selectedDateIndex = 0;
+  String? selectedDate;
+  int? selectedDuration;
+  int? selectedSlotId;
 
-  int selectedHour = 4;
-  int selectedMinute = 15;
-  bool isPm = true;
-  bool shareMedicalFiles = true;
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<BookingBloc>().add(FetchAvailableDatesEvent(widget.physicianId));
+    });
+  }
+
+  void _fetchAvailableSlots() {
+    if (selectedDate != null && selectedDuration != null) {
+      context.read<BookingBloc>().add(
+            FetchAvailableSlotsEvent(
+              widget.physicianId,
+              selectedDate!,
+              selectedDuration!,
+            ),
+          );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFE7F5FC),
       appBar: AppBar(
-        backgroundColor: const Color(0xFFEFF9FF),
+        backgroundColor: const Color(0xFFE7F5FC),
         elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => Navigator.pop(context),
+        ),
         title: const Text(
           'Schedule Physician',
           style: TextStyle(
-            color: Color(0xFF1C665E),
-            fontWeight: FontWeight.bold,
+            color: Colors.black,
+            fontWeight: FontWeight.w600,
           ),
         ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
-        ),
+        centerTitle: false,
       ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      body: BlocBuilder<BookingBloc, BookingState>(
+        builder: (context, state) {
+          if (state is BookingLoading) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (state is AvailableDatesLoaded) {
+            return _buildBookingContent(context, state.dates, null, null);
+          } else if (state is AvailableSlotsLoaded) {
+            return _buildBookingContent(context, null, state.slots, null);
+          } else if (state is PaymentUrlLoaded) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => PaymentWebViewPage(paymentUrl: state.paymentUrl, slotId: selectedSlotId!),
+                ),
+              );
+            });
+            return const Center(child: Text("Redirecting to payment..."));
+          } else if (state is BookingError) {
+            return Center(child: Text(state.message));
+          }
+          return const SizedBox.shrink();
+        },
+      ),
+    );
+  }
+
+  Widget _buildBookingContent(
+    BuildContext context,
+    List<String>? availableDates,
+    List<Map<String, dynamic>>? slots,
+    String? _,
+  ) {
+    final int availableSlotCount = slots?.length ?? 0;
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Doctor Info Section
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
               children: [
-                // Physician Card
-                const PhysicianCard(
-                  image: 'assets/images/Doctor.png',
-                  name: 'Dr. Abeba Kebede',
-                  specialization: 'Cardiologist',
-                  rating: 4.5,
-                  experience: 12,
+                const CircleAvatar(
+                  radius: 30,
+                  backgroundImage: AssetImage('assets/images/Doctor.png'),
                 ),
-                const SizedBox(height: 20),
-
-                // Choose a Date Section
-                const Text(
-                  "Choose A Date",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 10),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: List.generate(dates.length, (index) {
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 8.0),
-                        child: ChoiceChip(
-                          label: Text(dates[index]),
-                          selected: selectedDateIndex == index,
-                          onSelected: (val) {
-                            setState(() {
-                              selectedDateIndex = index;
-                            });
-                          },
-                          selectedColor: Colors.teal,
-                        ),
-                      );
-                    }),
-                  ),
-                ),
-                const SizedBox(height: 20),
-
-                // Time Info
-                Center(
-                  child: const Text(
-                    "Today\n10/6/2024\n9 Slots Available\n4 PM - 6 PM",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 14),
-                  ),
-                ),
-                const SizedBox(height: 20),
-
-                // Pick A Time
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 16),
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: const Color(0xFFEFF9FF), width: 2), // Increased border weight
-                    borderRadius: BorderRadius.circular(12),
-                    color: Colors.white,
-                  ),
+                const SizedBox(width: 12),
+                Expanded(
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center, // Centered the title
-                    children: [
-                      const Text(
-                        "Pick a time",
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                      ),
-                      const Divider(color: Color(0xFFEFF9FF), thickness: 1),
-                      const SizedBox(height: 10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          NumberPicker(
-                            value: selectedHour,
-                            minValue: 1,
-                            maxValue: 12,
-                            onChanged: (value) => setState(() => selectedHour = value),
-                          ),
-                          const SizedBox(width: 10),
-                          NumberPicker(
-                            value: selectedMinute,
-                            minValue: 0,
-                            maxValue: 59,
-                            step: 15,
-                            onChanged: (value) => setState(() => selectedMinute = value),
-                          ),
-                          const SizedBox(width: 10),
-                          Column(
-                            children: [
-                              TextButton(
-                                onPressed: () => setState(() => isPm = false),
-                                child: Text(
-                                  "AM",
-                                  style: TextStyle(color: !isPm ? Colors.teal : Colors.black),
-                                ),
-                              ),
-                              TextButton(
-                                onPressed: () => setState(() => isPm = true),
-                                child: Text(
-                                  "PM",
-                                  style: TextStyle(color: isPm ? Colors.teal : Colors.black),
-                                ),
-                              ),
-                            ],
-                          )
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      SizedBox(
-                        width: double.infinity, // Full width for the button
-                        child: ElevatedButton(
-                          onPressed: () {},
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFFA55D68), // Background color
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.zero, // Rectangular shape
-                            ),
-                          ),
-                          child: const Text(
-                            "SAVE",
-                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                          ),
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: const [
+                      Text(
+                        'Dr Abeba Kebede',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
                         ),
                       ),
+                      SizedBox(height: 4),
+                      Text('MBBS, MD', style: TextStyle(fontSize: 12)),
+                      Text('Cardiologist', style: TextStyle(fontSize: 12)),
+                      Text('42 Year Experience', style: TextStyle(fontSize: 12)),
                     ],
                   ),
                 ),
-                const SizedBox(height: 30),
+                const Icon(Icons.star, color: Colors.amber),
+                const Text('4.5'),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
 
-                // Terms and Conditions
-                Center(
-                  child: const Text(
-                    "Terms and Conditions",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  "The Document Governing The Contractual Relationship Between The Provider Of A Service And Its User. On This View, This Document Is Often Also Called “Terms Of Service” (TOS).",
-                  style: TextStyle(fontSize: 12),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 10),
+          // Choose a Date Section
+          if (availableDates != null) ...[
+            const Text('Choose A Date'),
+            const SizedBox(height: 8),
+            SizedBox(
+              height: 40,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: availableDates.length,
+                itemBuilder: (context, index) {
+                  final date = availableDates[index];
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: ChoiceChip(
+                      label: Text(date),
+                      selected: selectedDate == date,
+                      onSelected: (selected) {
+                        setState(() {
+                          selectedDate = date;
+                          selectedDuration = null;
+                          selectedSlotId = null;
+                        });
+                      },
+                    ),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
 
-                // Checkbox
-                CheckboxListTile(
-                  value: shareMedicalFiles,
-                  onChanged: (value) => setState(() => shareMedicalFiles = value ?? false),
-                  title: const Text(
-                    "Share All Previous Medical Files With The Doctor",
-                    style: TextStyle(color: Colors.black),
-                  ),
-                  controlAffinity: ListTileControlAffinity.leading,
-                  activeColor: const Color(0xFFA55D68), // Checkbox color when selected
-                  contentPadding: EdgeInsets.zero,
-                ),
-                const SizedBox(height: 10),
-
-                // Proceed Button
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFA55D68),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.zero, // Rectangular shape
+          // Choose Duration Section
+          if (selectedDate != null) ...[
+            const Text('Choose Duration'),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: selectedDuration == 30 ? Colors.blue : Colors.grey,
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                      color: Colors.white,
+                    ),
+                    child: TextButton(
+                      onPressed: () {
+                        setState(() {
+                          selectedDuration = 30;
+                          _fetchAvailableSlots();
+                        });
+                      },
+                      child: const Text(
+                        '30 Min\nQuick Consultation',
+                        textAlign: TextAlign.center,
                       ),
                     ),
-                    child: const Text(
-                      "PROCEED",
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: selectedDuration == 60 ? Colors.blue : Colors.grey,
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                      color: Colors.white,
+                    ),
+                    child: TextButton(
+                      onPressed: () {
+                        setState(() {
+                          selectedDuration = 60;
+                          _fetchAvailableSlots();
+                        });
+                      },
+                      child: const Text(
+                        '60 Min\nStandard Consultation',
+                        textAlign: TextAlign.center,
+                      ),
                     ),
                   ),
                 ),
               ],
             ),
-          ),
-        ),
+            const SizedBox(height: 16),
+          ],
+
+          // Available Slots Section
+          if (slots != null) ...[
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Center(
+                child: Text(
+                  '$selectedDate | $selectedDuration Min | $availableSlotCount Slots Available',
+                  style: const TextStyle(fontWeight: FontWeight.w500),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Text('Select A Time Slot'),
+            const SizedBox(height: 8),
+            Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: const Color(0xFF38AAD4)),
+                borderRadius: BorderRadius.circular(8),
+                color: Colors.white,
+              ),
+              constraints: const BoxConstraints(maxHeight: 200),
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: slots.length,
+                itemBuilder: (context, index) {
+                  final slot = slots[index];
+                  return ListTile(
+                    title: Text('${slot['startTime']} - ${slot['endTime']}'),
+                    selected: selectedSlotId == slot['id'],
+                    onTap: () {
+                      setState(() {
+                        selectedSlotId = slot['id'];
+                      });
+                    },
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
+
+          // Proceed Button
+          if (selectedSlotId != null) ...[
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  context.read<BookingBloc>().add(BookSlotEvent(selectedSlotId!));
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF8C2F39),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                ),
+                child: const Text(
+                  'PROCEED',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
+          ],
+        ],
       ),
-    );
-  }
-}
-
-// Helper Widget for number picking
-class NumberPicker extends StatelessWidget {
-  final int value;
-  final int minValue;
-  final int maxValue;
-  final int step;
-  final Function(int) onChanged;
-
-  const NumberPicker({
-    super.key,
-    required this.value,
-    required this.minValue,
-    required this.maxValue,
-    this.step = 1,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final values = List.generate(((maxValue - minValue) ~/ step + 1), (i) => minValue + i * step);
-
-    return DropdownButton<int>(
-      value: value,
-      items: values.map((e) => DropdownMenuItem(child: Text(e.toString()), value: e)).toList(),
-      onChanged: (val) => onChanged(val!),
     );
   }
 }

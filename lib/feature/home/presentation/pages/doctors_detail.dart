@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widget/recommended_doctors.dart';
 import '../widget/reviewcard.dart';
+import 'booking.dart';
 
 class PhysicianDetailsPage extends StatelessWidget {
   final String image;
@@ -8,9 +9,12 @@ class PhysicianDetailsPage extends StatelessWidget {
   final String specialization;
   final double rating;
   final int experience;
+  final int id; // Add the physician ID
+
 
   const PhysicianDetailsPage({
     super.key,
+    required this.id, // Initialize the physician ID
     required this.image,
     required this.name,
     required this.specialization,
@@ -128,9 +132,14 @@ class PhysicianDetailsPage extends StatelessWidget {
               children: [
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/booking');
-                    },
+                   onPressed: () {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => BookingPage(physicianId: id), // Pass the ID
+    ),
+  );
+},
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFA55D68),
                       padding: const EdgeInsets.symmetric(vertical: 14),
