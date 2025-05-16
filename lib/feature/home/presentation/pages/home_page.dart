@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../Auth/presentation/bloc/auth_bloc.dart';
+import '../../../Auth/presentation/bloc/auth_event.dart';
 import '../bloc/home_bloc.dart';
 import '../bloc/home_event.dart';
 import '../bloc/home_state.dart';
@@ -28,6 +30,8 @@ class _HomePageState extends State<HomePage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     // Re-dispatch events to fetch recommended physicians and institutions
+    context.read<AuthBloc>().add(GetUserProfileEvent());
+
     context.read<HomeBloc>().add(GetRecommendedPhysiciansEvent());
     context.read<HomeBloc>().add(GetRecommendedInstitutionsEvent());
   }
@@ -324,7 +328,7 @@ showModalBottomSheet(
             BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: 'My Appointments'),
             BottomNavigationBarItem(icon: Icon(Icons.people), label: 'All Doctors'),
             BottomNavigationBarItem(icon: Icon(Icons.local_hospital), label: 'All Hospitals'),
-            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+            // BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
           ],
         ),
       ),

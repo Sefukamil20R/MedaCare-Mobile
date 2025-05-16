@@ -108,27 +108,28 @@ Future<String> login(String email, String password) async {
   }
 }
 
-  @override
-  Future<UserModel> getUserProfile(String token) async {
-    try {
-      final response = await client.get(
-        Uri.parse("$baseUrl/users/current"),
-        headers: {
-          "Authorization": "Bearer $token",
-        },
-      );
-
-      final body = jsonDecode(response.body);
-      if (response.statusCode == 200 && body['status'] == 'success') {
-        return UserModel.fromJson(body['data']);
-      } else {
-        throw Exception(body['message'] ?? 'Failed to fetch profile');
-      }
-    } catch (e) {
-      print('Error during fetching user profile: $e');
-      throw Exception('Error during fetching user profile: $e');
+ @override
+Future<UserModel> getUserProfile(String token) async {
+  try {
+    final response = await client.get(
+      Uri.parse("$baseUrl/users/current"),
+      headers: {
+        "Authorization": "Bearer $token",
+      },
+    );
+    print('Response Status Code (Profile fetching): ${response.statusCode}');
+    print('Response Body (Profile Fetching): ${response.body}');
+    final body = jsonDecode(response.body);
+    if (response.statusCode == 200) {
+      return UserModel.fromJson(body);
+    } else {
+      throw Exception(body['message'] ?? 'Failed to fetch profile');
     }
+  } catch (e) {
+    print('Error during fetching user profile: $e');
+    throw Exception('Error during fetching user profile: $e');
   }
+}
 
   @override
   Future<void> logout() async {

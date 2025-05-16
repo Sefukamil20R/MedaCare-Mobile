@@ -53,11 +53,13 @@ class EmailVerifiedState extends AuthState {
 
 class LoggedInState extends AuthState {
   final String jwt;
+  // final User user; // <-- Add this
 
-  LoggedInState(this.jwt);
+
+  LoggedInState(this.jwt); // <-- Modify constructor to accept user
 
   @override
-  List<Object?> get props => [jwt];
+  List<Object?> get props => [jwt]; // <-- Include user in props
 }
 
 class UserProfileLoadedState extends AuthState {

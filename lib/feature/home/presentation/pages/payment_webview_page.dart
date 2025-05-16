@@ -34,7 +34,7 @@ class PaymentWebViewPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Complete Your Payment'),
-        backgroundColor: const Color(0xFF8C2F39),
+        backgroundColor: const Color(0xFFE7F5FC),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {

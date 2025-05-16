@@ -6,6 +6,8 @@ class User extends Equatable {
   final String firstName;
   final String lastName;
   final String? password;
+  final bool? firstLogin; // <-- Add this
+
 
   User({
     required this.id,
@@ -13,6 +15,7 @@ class User extends Equatable {
     required this.firstName,
     required this.lastName,
     this.password,
+    this.firstLogin, // <-- Add this
   });
 
   @override
