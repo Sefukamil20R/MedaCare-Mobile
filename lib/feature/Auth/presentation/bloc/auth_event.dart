@@ -52,3 +52,19 @@ class CompletePatientProfileEvent extends AuthEvent {
   CompletePatientProfileEvent(this.profileData);
 }
 
+class SendResetPasswordEmailEvent extends AuthEvent {
+  final String email;
+  SendResetPasswordEmailEvent(this.email);
+}
+
+class VerifyResetCodeEvent extends AuthEvent {
+  final String email;
+  final String code;
+  VerifyResetCodeEvent(this.email, this.code);
+}
+
+class ResetPasswordEvent extends AuthEvent {
+  final String email;
+  final String newPassword;
+  ResetPasswordEvent(this.email, this.newPassword);
+}

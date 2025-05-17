@@ -5,6 +5,7 @@ import '../../domain/usecase/completeprofile.dart';
 import '../../domain/usecase/get_user_profile_usecase.dart';
 import '../../domain/usecase/login_user_usecase.dart';
 import '../../domain/usecase/logout_usecase.dart';
+import '../../domain/usecase/password_reset_usecases.dart';
 import '../../domain/usecase/register_user_usecase.dart';
 import '../../domain/usecase/verify_email_usecase.dart';
 
@@ -20,6 +21,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final LogoutUseCase logoutUseCase;
   final ResendVerificationEmailUseCase resendVerificationEmailUseCase;
   final CompletePatientProfileUseCase completePatientProfileUseCase;
+  final SendResetPasswordEmailUseCase sendResetPasswordEmailUseCase;
+  final VerifyResetCodeUseCase verifyResetCodeUseCase;
+  final ResetPasswordUseCase resetPasswordUseCase;
 
   AuthBloc({
     required this.registerUserUseCase,
@@ -29,6 +33,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required this.logoutUseCase,
     required this.resendVerificationEmailUseCase,
     required this.completePatientProfileUseCase,
+    required this.sendResetPasswordEmailUseCase,
+    required this.verifyResetCodeUseCase, 
+    required this.resetPasswordUseCase,
   }) : super(AuthInitial()) {
     on<RegisterUserEvent>(_onRegisterUser);
     on<VerifyEmailEvent>(_onVerifyEmail);
@@ -37,6 +44,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<LogoutUserEvent>(_onLogout);
     on<ResendVerificationEmailEvent>(_onResendVerificationEmail);
     on<CompletePatientProfileEvent>(_onCompletePatientProfile);
+    on<SendResetPasswordEmailEvent>(_onSendResetPasswordEmail);
+    on<VerifyResetCodeEvent>(_onVerifyResetCode);
+    on<ResetPasswordEvent>(_onResetPassword);
   }
 
   Future<void> _onRegisterUser(RegisterUserEvent event, Emitter<AuthState> emit) async {
@@ -201,4 +211,37 @@ Future<void> _onLoginUser(LoginUserEvent event, Emitter<AuthState> emit) async {
       emit(ProfileCompletionError(e.toString()));
     }
   }
+  Future<void> _onSendResetPasswordEmail(
+    SendResetPasswordEmailEvent event, Emitter<AuthState> emit) async {
+  emit(ResetPasswordLoading());
+  try {
+    await sendResetPasswordEmailUseCase(event.email);
+    emit(ResetPasswordEmailSent());
+  } catch (e) {
+    emit(ResetPasswordError(e.toString()));
+  }
+}
+
+Future<void> _onVerifyResetCode(
+    VerifyResetCodeEvent event, Emitter<AuthState> emit) async {
+  emit(ResetPasswordLoading());
+  try {
+    await verifyResetCodeUseCase(event.email, event.code);
+    emit(ResetPasswordCodeVerified());
+  } catch (e) {
+    emit(ResetPasswordError(e.toString()));
+  }
+}
+
+Future<void> _onResetPassword(
+    ResetPasswordEvent event, Emitter<AuthState> emit) async {
+  emit(ResetPasswordLoading());
+  try {
+    await resetPasswordUseCase(event.email, event.newPassword);
+    emit(ResetPasswordSuccess());
+  } catch (e) {
+    emit(ResetPasswordError(e.toString()));
+  }
+}
+  
 }

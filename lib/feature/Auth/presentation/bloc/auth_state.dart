@@ -98,3 +98,11 @@ class ProfileCompletionError extends AuthState {
 class NavigateToLoginState extends AuthState {}
 
 class NavigateToHomeState extends AuthState {}
+class ResetPasswordLoading extends AuthState {}
+class ResetPasswordEmailSent extends AuthState {}
+class ResetPasswordCodeVerified extends AuthState {}
+class ResetPasswordSuccess extends AuthState {}
+class ResetPasswordError extends AuthState {
+  final String message;
+  ResetPasswordError(this.message);
+}

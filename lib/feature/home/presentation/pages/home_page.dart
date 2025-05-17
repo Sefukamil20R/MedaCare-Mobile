@@ -27,14 +27,15 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // Re-dispatch events to fetch recommended physicians and institutions
+void initState() {
+  super.initState();
+  print('HomePage initState called');
+  Future.microtask(() {
     context.read<AuthBloc>().add(GetUserProfileEvent());
-
     context.read<HomeBloc>().add(GetRecommendedPhysiciansEvent());
     context.read<HomeBloc>().add(GetRecommendedInstitutionsEvent());
-  }
+  });
+}
 
   @override
   Widget build(BuildContext context) {

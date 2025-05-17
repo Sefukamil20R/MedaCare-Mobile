@@ -8,6 +8,7 @@ abstract class BookingRemoteDataSource {
   Future<List<Map<String, dynamic>>> getAvailableSlots(int physicianId, String date, int duration);
   Future<Map<String, dynamic>> bookSlot(int slotId);
   Future<void> finalizeBooking(int slotId);
+  Future<void> submitRating({required int physicianId, required int rating});
 }
 
 class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
@@ -148,6 +149,32 @@ Future<void> finalizeBooking(int slotId) async {
   } catch (e) {
     print('Error finalizing booking: $e');
     throw Exception('Error finalizing booking: $e');
+  }
+}
+Future<void> submitRating({required int physicianId, required int rating}) async {
+  final token = await _getToken();
+  final url = Uri.parse('$_baseUrl/interactions/rating');
+  print('Submitting rating for physicianId: $physicianId, rating: $rating');
+  print('API URL: $url');
+
+  try {
+    final response = await client.post(
+      url,
+      headers: _buildHeaders(token),
+      body: jsonEncode({
+        'physicianId': physicianId,
+        'rating': rating,
+      }),
+    );
+    print('Response Status Code: ${response.statusCode}');
+    print('Response Body: ${response.body}');
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to submit rating: ${response.body}');
+    }
+  } catch (e) {
+    print('Error submitting rating: $e');
+    throw Exception('Error submitting rating: $e');
   }
 }
 }

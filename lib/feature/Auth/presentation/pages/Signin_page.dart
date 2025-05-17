@@ -125,7 +125,7 @@ class _SigninScreenState extends State<SigninScreen> {
     onPressed: () {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => ResetPasswordPage()),
+        MaterialPageRoute(builder: (context) => SendResetEmailPage()),
       );
     },
     child: const Text(
