@@ -80,6 +80,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/booking_bloc.dart';
+import 'doctors_page.dart';
+import 'home_page.dart';
 
 class ConfirmationPage extends StatefulWidget {
   final int slotId;
@@ -157,7 +159,14 @@ class _ConfirmationPageState extends State<ConfirmationPage> {
                         ),
                         const SizedBox(height: 16),
                         ElevatedButton(
-                          onPressed: () => Navigator.pop(context),
+                          onPressed: (){
+                            Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => HomePage(),
+                  ),
+                );
+                          },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFFB94A57),
                             padding: const EdgeInsets.symmetric(
