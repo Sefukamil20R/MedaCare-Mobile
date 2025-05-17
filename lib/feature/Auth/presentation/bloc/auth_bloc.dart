@@ -71,78 +71,79 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
-  Future<void> _onLoginUser(LoginUserEvent event, Emitter<AuthState> emit) async {
-    emit(AuthLoading()); // Emit loading state
-    try {
-      final result = await loginUserUseCase.call(event.email, event.password);
+  // Future<void> _onLoginUser(LoginUserEvent event, Emitter<AuthState> emit) async {
+  //   emit(AuthLoading()); // Emit loading state
+  //   try {
+  //     final result = await loginUserUseCase.call(event.email, event.password);
 
-      await result.fold(
-        (failure) async {
-          print('Login API Error: ${failure.message}');
-          emit(AuthError(failure.message)); // Emit error state
-        },
-        (jwt) async {
-          if (jwt == null || jwt.isEmpty) {
-            print('Login API Error: Received null or empty JWT token');
-            emit(AuthError('Login failed: Invalid token received')); // Emit error state
-            return;
-          }
+  //     await result.fold(
+  //       (failure) async {
+  //         print('Login API Error: ${failure.message}');
+  //         emit(AuthError(failure.message)); // Emit error state
+  //       },
+  //       (jwt) async {
+  //         if (jwt == null || jwt.isEmpty) {
+  //           print('Login API Error: Received null or empty JWT token');
+  //           emit(AuthError('Login failed: Invalid token received')); // Emit error state
+  //           return;
+  //         }
 
-          // Save the token locally
-          final prefs = await SharedPreferences.getInstance();
-          await prefs.setString('jwt_token', jwt);
+  //         // Save the token locally
+  //         final prefs = await SharedPreferences.getInstance();
+  //         await prefs.setString('jwt_token', jwt);
 
-          print('Login API Success: JWT token saved: $jwt');
-          emit(LoggedInState(jwt)); // Emit success state
-        },
-      );
-    } catch (e) {
-      print('Unexpected error during login: $e');
-      emit(AuthError('Unexpected error occurred during login.')); // Emit error state
-    }
+  //         print('Login API Success: JWT token saved: $jwt');
+  //         emit(LoggedInState(jwt)); // Emit success state
+  //       },
+  //     );
+  //   } catch (e) {
+  //     print('Unexpected error during login: $e');
+  //     emit(AuthError('Unexpected error occurred during login.')); // Emit error state
+  //   }
+  // }
+  
+Future<void> _onLoginUser(LoginUserEvent event, Emitter<AuthState> emit) async {
+  emit(AuthLoading()); // Emit loading state
+  try {
+    final result = await loginUserUseCase.call(event.email, event.password);
+
+    await result.fold(
+      (failure) async {
+        print('Login API Error: ${failure.message}');
+        emit(AuthError(failure.message)); // Emit error state
+      },
+      (jwt) async {
+        if (jwt == null || jwt.isEmpty) {
+          print('Login API Error: Received null or empty JWT token');
+          emit(AuthError('Login failed: Invalid token received')); // Emit error state
+          return;
+        }
+
+        // Save the token locally
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('jwt_token', jwt);
+
+        print('Login API Success: JWT token saved: $jwt');
+
+        // Fetch user profile after login
+        final profileResult = await getUserProfileUseCase.call();
+        profileResult.fold(
+          (failure) {
+            print('Get Profile API Error: ${failure.message}');
+            emit(AuthError(failure.message));
+          },
+          (user) {
+            print('Get Profile API Success: User profile loaded');
+            emit(UserProfileLoadedState(user)); // <-- Use this for navigation
+          },
+        );
+      },
+    );
+  } catch (e) {
+    print('Unexpected error during login: $e');
+    emit(AuthError('Unexpected error occurred during login.')); // Emit error state
   }
-// Future<void> _onLoginUser(LoginUserEvent event, Emitter<AuthState> emit) async {
-//   emit(AuthLoading()); // Emit loading state
-//   try {
-//     final result = await loginUserUseCase.call(event.email, event.password);
-
-//     await result.fold(
-//       (failure) async {
-//         print('Login API Error: ${failure.message}');
-//         emit(AuthError(failure.message)); // Emit error state
-//       },
-//       (jwt) async {
-//         if (jwt == null || jwt.isEmpty) {
-//           print('Login API Error: Received null or empty JWT token');
-//           emit(AuthError('Login failed: Invalid token received')); // Emit error state
-//           return;
-//         }
-
-//         // Save the token locally
-//         final prefs = await SharedPreferences.getInstance();
-//         await prefs.setString('jwt_token', jwt);
-
-//         print('Login API Success: JWT token saved: $jwt');
-
-//         // Fetch user profile after login
-//         final profileResult = await getUserProfileUseCase.call();
-//         profileResult.fold(
-//           (failure) {
-//             print('Get Profile API Error: ${failure.message}');
-//             emit(AuthError(failure.message));
-//           },
-//           (user) {
-//             print('Get Profile API Success: User profile loaded');
-//             emit(UserProfileLoadedState(user)); // <-- Use this for navigation
-//           },
-//         );
-//       },
-//     );
-//   } catch (e) {
-//     print('Unexpected error during login: $e');
-//     emit(AuthError('Unexpected error occurred during login.')); // Emit error state
-//   }
-// }
+}
   Future<void> _onGetProfile(GetUserProfileEvent event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
     final result = await getUserProfileUseCase.call();

@@ -170,15 +170,31 @@ class _HomePageState extends State<HomePage> {
                                 padding: const EdgeInsets.symmetric(horizontal: 16),
                                 child: Column(
                                   children: recommendedPhysicians.map((physician) {
-                                    print('Displaying Physician: ${physician.firstName} ${physician.lastName}'); // Debugging log
-                                    return PhysicianCard(
-                                      image: physician.profilePhotoUrl ?? 'assets/images/Doctor.png',
-                                      name: '${physician.firstName} ${physician.lastName}',
-                                      specialization: physician.specialization,
-                                      rating: physician.rating,
-                                      experience: physician.experience,
-                                    );
-                                  }).toList(),
+  return GestureDetector(
+    onTap: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PhysicianDetailsPage(
+            id: physician.id,
+            image: physician.profilePhotoUrl ?? 'assets/images/Doctor.png',
+            name: '${physician.firstName} ${physician.lastName}',
+            specialization: physician.specialization,
+            rating: physician.rating,
+            experience: physician.experience,
+          ),
+        ),
+      );
+    },
+    child: PhysicianCard(
+      image: physician.profilePhotoUrl ?? 'assets/images/Doctor.png',
+      name: '${physician.firstName} ${physician.lastName}',
+      specialization: physician.specialization,
+      rating: physician.rating,
+      experience: physician.experience,
+    ),
+  );
+}).toList(),
                                 ),
                               ),
                             ],

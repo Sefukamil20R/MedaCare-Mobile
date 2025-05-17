@@ -32,14 +32,17 @@ class _SigninScreenState extends State<SigninScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: BlocConsumer<AuthBloc, AuthState>(
               listener: (context, state) {
-              if (state is LoggedInState) {
+              if (state is UserProfileLoadedState) {
   showCustomSnackBar(
     context,
     'Login successful!',
     Colors.green,
   );
-  // Navigate to the appropriate page based on the user's profile status
-  Navigator.pushReplacementNamed(context, '/complete_profile');
+  if (state.user.firstLogin == true) {
+    Navigator.pushReplacementNamed(context, '/complete_profile');
+  } else {
+    Navigator.pushReplacementNamed(context, '/home');
+  }
 } else if (state is AuthError) {
                   showCustomSnackBar(
                     context,
