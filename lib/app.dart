@@ -15,6 +15,11 @@ import 'feature/Auth/presentation/pages/Signin_page.dart';
 import 'feature/Auth/presentation/pages/Signup_page.dart';
 import 'feature/Auth/presentation/pages/profile.dart';
 import 'feature/Auth/presentation/pages/verify_Success.dart';
+import 'feature/home/domain/usecases/book_slot_usecase.dart';
+import 'feature/home/domain/usecases/finalize_booking_usecase.dart';
+import 'feature/home/domain/usecases/get_available_dates_usecase.dart';
+import 'feature/home/domain/usecases/get_available_slots_usecase.dart';
+import 'feature/home/presentation/bloc/booking_bloc.dart';
 import 'feature/home/presentation/pages/home_page.dart';
 import 'feature/home/presentation/pages/booking.dart';
 import 'injection_container.dart';
@@ -54,6 +59,14 @@ class MedaCareApp extends StatelessWidget {
             // authService: sl<AuthService>(),
           ),
         ),
+        BlocProvider<BookingBloc>(
+          create: (context) => BookingBloc(
+            getAvailableDatesUseCase: sl<GetAvailableDatesUseCase>(),
+            getAvailableSlotsUseCase: sl<GetAvailableSlotsUseCase>(),
+            bookSlotUseCase: sl<BookSlotUseCase>(),
+            finalizeBookingUseCase: sl<FinalizeBookingUseCase>(),
+          ),
+        ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -66,7 +79,7 @@ class MedaCareApp extends StatelessWidget {
           '/profile': (context) => ProfileDetailsPage(),
           '/complete_profile': (context) => CompleteProfilePage(),
           '/home': (context) => HomePage(),
-          '/booking': (context) => BookingPage(),
+          // '/booking': (context) => BookingPage(),
         },
       ),
     );

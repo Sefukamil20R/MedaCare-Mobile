@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../Auth/presentation/bloc/auth_bloc.dart';
+import '../../../Auth/presentation/bloc/auth_event.dart';
 import '../bloc/home_bloc.dart';
 import '../bloc/home_event.dart';
 import '../bloc/home_state.dart';
@@ -28,6 +30,8 @@ class _HomePageState extends State<HomePage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     // Re-dispatch events to fetch recommended physicians and institutions
+    context.read<AuthBloc>().add(GetUserProfileEvent());
+
     context.read<HomeBloc>().add(GetRecommendedPhysiciansEvent());
     context.read<HomeBloc>().add(GetRecommendedInstitutionsEvent());
   }
@@ -166,15 +170,31 @@ class _HomePageState extends State<HomePage> {
                                 padding: const EdgeInsets.symmetric(horizontal: 16),
                                 child: Column(
                                   children: recommendedPhysicians.map((physician) {
-                                    print('Displaying Physician: ${physician.firstName} ${physician.lastName}'); // Debugging log
-                                    return PhysicianCard(
-                                      image: physician.profilePhotoUrl ?? 'assets/images/Doctor.png',
-                                      name: '${physician.firstName} ${physician.lastName}',
-                                      specialization: physician.specialization,
-                                      rating: physician.rating,
-                                      experience: physician.experience,
-                                    );
-                                  }).toList(),
+  return GestureDetector(
+    onTap: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PhysicianDetailsPage(
+            id: physician.id,
+            image: physician.profilePhotoUrl ?? 'assets/images/Doctor.png',
+            name: '${physician.firstName} ${physician.lastName}',
+            specialization: physician.specialization,
+            rating: physician.rating,
+            experience: physician.experience,
+          ),
+        ),
+      );
+    },
+    child: PhysicianCard(
+      image: physician.profilePhotoUrl ?? 'assets/images/Doctor.png',
+      name: '${physician.firstName} ${physician.lastName}',
+      specialization: physician.specialization,
+      rating: physician.rating,
+      experience: physician.experience,
+    ),
+  );
+}).toList(),
                                 ),
                               ),
                             ],
@@ -324,7 +344,7 @@ showModalBottomSheet(
             BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: 'My Appointments'),
             BottomNavigationBarItem(icon: Icon(Icons.people), label: 'All Doctors'),
             BottomNavigationBarItem(icon: Icon(Icons.local_hospital), label: 'All Hospitals'),
-            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+            // BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
           ],
         ),
       ),

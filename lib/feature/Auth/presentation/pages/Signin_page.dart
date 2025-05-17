@@ -6,6 +6,8 @@ import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 import 'profile.dart';
+import 'reset_password_page.dart';
+import 'verify_email_page.dart';
 class SigninScreen extends StatefulWidget {
   const SigninScreen({super.key});
 
@@ -30,16 +32,18 @@ class _SigninScreenState extends State<SigninScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: BlocConsumer<AuthBloc, AuthState>(
               listener: (context, state) {
-                if (state is LoggedInState) {
-                  showCustomSnackBar(
-                    context,
-                    'Login successful!',
-                    Colors.green, // Green for success
-                  );
-
-                  // Navigate to the appropriate page based on the user's profile status
-                  Navigator.pushReplacementNamed(context, '/complete_profile');
-                } else if (state is AuthError) {
+              if (state is UserProfileLoadedState) {
+  showCustomSnackBar(
+    context,
+    'Login successful!',
+    Colors.green,
+  );
+  if (state.user.firstLogin == true) {
+    Navigator.pushReplacementNamed(context, '/complete_profile');
+  } else {
+    Navigator.pushReplacementNamed(context, '/home');
+  }
+} else if (state is AuthError) {
                   showCustomSnackBar(
                     context,
                     state.message, // User-friendly error message
@@ -114,8 +118,32 @@ class _SigninScreenState extends State<SigninScreen> {
                         ),
                       ),
                     ),
+                    const SizedBox(height: 14),
+                   Align(
+  alignment: Alignment.centerLeft,
+  child: TextButton(
+    onPressed: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => ResetPasswordPage()),
+      );
+    },
+    child: const Text(
+      'Forgot Password?',
+      style: TextStyle(
+        color: Color(0xFFB94A57),
+        fontWeight: FontWeight.w600,
+      ),
+    ),
+    style: TextButton.styleFrom(
+      padding: EdgeInsets.zero, // Remove default padding
+      minimumSize: Size(0, 0),
+      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+    ),
+  ),
+),
 
-                    const SizedBox(height: 64),
+                    const SizedBox(height: 34),
 
                     // Sign In Button
                     SizedBox(
@@ -181,7 +209,7 @@ class _SigninScreenState extends State<SigninScreen> {
                       ),
                     ),
 
-                    const SizedBox(height: 106),
+                    const SizedBox(height: 46),
 
                     // Don't have an account? Sign Up
                     Row(

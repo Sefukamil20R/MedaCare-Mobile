@@ -18,9 +18,9 @@ class InstitutionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity, // Make the card take full width
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(9),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Color(0xFFFFFFFF),
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
@@ -36,6 +36,7 @@ class InstitutionCard extends StatelessWidget {
           AspectRatio(
             aspectRatio: 16 / 9, // Maintain a 16:9 aspect ratio
             child: ClipRRect(
+              
               borderRadius: BorderRadius.circular(8),
               child: Image.network(
                 image,
@@ -52,19 +53,29 @@ class InstitutionCard extends StatelessWidget {
             style: const TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 16,
-              color: Color(0xFF1C665E),
+              color: Colors.black,
             ),
           ),
           const SizedBox(height: 4),
 
           // Institution Location
-          Text(
-            location,
-            style: const TextStyle(
-              fontSize: 14,
-              color: Colors.grey,
-            ),
-          ),
+         // Institution Location
+Row(
+  children: [
+    const Icon(Icons.location_on, size: 16, color: Colors.black),
+    const SizedBox(width: 2),
+    Expanded(
+      child: Text(
+        location,
+        style: const TextStyle(
+          fontSize: 14,
+          color: Colors.grey,
+        ),
+        overflow: TextOverflow.ellipsis,
+      ),
+    ),
+  ],
+),
           const SizedBox(height: 4),
 
           // Institution Specialization

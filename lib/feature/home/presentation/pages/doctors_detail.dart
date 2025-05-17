@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widget/recommended_doctors.dart';
 import '../widget/reviewcard.dart';
+import 'booking.dart';
 
 class PhysicianDetailsPage extends StatelessWidget {
   final String image;
@@ -8,9 +9,12 @@ class PhysicianDetailsPage extends StatelessWidget {
   final String specialization;
   final double rating;
   final int experience;
+  final int id; // Add the physician ID
+
 
   const PhysicianDetailsPage({
     super.key,
+    required this.id, // Initialize the physician ID
     required this.image,
     required this.name,
     required this.specialization,
@@ -107,9 +111,16 @@ class PhysicianDetailsPage extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('• General Health Check-Ins'),
-                        Text('• Chronic Condition Management'),
-                        Text('• E-Prescriptions'),
+                        Text('• General Health Check-Ins' , 
+                            style: TextStyle(
+                                 color: Colors.lightBlue,
+)),
+                        Text('• Chronic Condition Management' ,  style: TextStyle(
+                                 color: Colors.lightBlue,
+)),
+                        Text('• E-Prescriptions' ,  style: TextStyle(
+                                 color: Colors.lightBlue,
+)),
                       ],
                     ),
                   ),
@@ -128,9 +139,22 @@ class PhysicianDetailsPage extends StatelessWidget {
               children: [
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/booking');
-                    },
+                   // doctors_detail.dart
+onPressed: () {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => BookingPage(
+        physicianId: id,
+        image: image,
+        name: name,
+        specialization: specialization,
+        rating: rating,
+        experience: experience,
+      ),
+    ),
+  );
+},
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFA55D68),
                       padding: const EdgeInsets.symmetric(vertical: 14),

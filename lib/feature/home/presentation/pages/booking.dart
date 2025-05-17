@@ -1,255 +1,634 @@
+// import 'package:flutter/material.dart';
+// import 'package:flutter_bloc/flutter_bloc.dart';
+// import '../bloc/booking_bloc.dart';
+// import 'payment_webview_page.dart'; // Import your WebView page
+
+// class BookingPage extends StatefulWidget {
+//   final int physicianId;
+
+//   const BookingPage({super.key, required this.physicianId});
+
+//   @override
+//   State<BookingPage> createState() => _BookingPageState();
+// }
+
+// class _BookingPageState extends State<BookingPage> {
+//   String? selectedDate;
+//   int? selectedDuration;
+//   int? selectedSlotId;
+
+//   @override
+//   void initState() {
+//     super.initState();
+//     WidgetsBinding.instance.addPostFrameCallback((_) {
+//       context.read<BookingBloc>().add(FetchAvailableDatesEvent(widget.physicianId));
+//     });
+//   }
+
+//   void _fetchAvailableSlots() {
+//     if (selectedDate != null && selectedDuration != null) {
+//       context.read<BookingBloc>().add(
+//             FetchAvailableSlotsEvent(
+//               widget.physicianId,
+//               selectedDate!,
+//               selectedDuration!,
+//             ),
+//           );
+//     }
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       backgroundColor: const Color(0xFFE7F5FC),
+//       appBar: AppBar(
+//         backgroundColor: const Color(0xFFE7F5FC),
+//         elevation: 0,
+//         leading: IconButton(
+//           icon: const Icon(Icons.arrow_back, color: Colors.black),
+//           onPressed: () => Navigator.pop(context),
+//         ),
+//         title: const Text(
+//           'Schedule Physician',
+//           style: TextStyle(
+//             color: Colors.black,
+//             fontWeight: FontWeight.w600,
+//           ),
+//         ),
+//         centerTitle: false,
+//       ),
+//       body: BlocBuilder<BookingBloc, BookingState>(
+//         builder: (context, state) {
+//           if (state is BookingLoading) {
+//             return const Center(child: CircularProgressIndicator());
+//           } else if (state is AvailableDatesLoaded) {
+//             return _buildBookingContent(context, state.dates, null, null);
+//           } else if (state is AvailableSlotsLoaded) {
+//             return _buildBookingContent(context, null, state.slots, null);
+//           } else if (state is PaymentUrlLoaded) {
+//             // Navigate to WebView automatically
+//             WidgetsBinding.instance.addPostFrameCallback((_) {
+//               Navigator.push(
+//                 context,
+//                 MaterialPageRoute(
+//                   builder: (_) => PaymentWebViewPage(paymentUrl: state.paymentUrl, slotId: selectedSlotId!),
+//                 ),
+//               );
+//             });
+//             return const Center(child: Text("Redirecting to payment..."));
+//           } else if (state is BookingError) {
+//             return Center(child: Text(state.message));
+//           }
+//           return const SizedBox.shrink();
+//         },
+//       ),
+//     );
+//   }
+
+//   Widget _buildBookingContent(
+//     BuildContext context,
+//     List<String>? availableDates,
+//     List<Map<String, dynamic>>? slots,
+//     String? _,
+//   ) {
+//     return SingleChildScrollView(
+//       padding: const EdgeInsets.all(16.0),
+//       child: Column(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           if (availableDates != null) ...[
+//             const Text('Choose A Date'),
+//             const SizedBox(height: 8),
+//             SizedBox(
+//               height: 40,
+//               child: ListView.builder(
+//                 scrollDirection: Axis.horizontal,
+//                 itemCount: availableDates.length,
+//                 itemBuilder: (context, index) {
+//                   final date = availableDates[index];
+//                   return Padding(
+//                     padding: const EdgeInsets.only(right: 8),
+//                     child: ChoiceChip(
+//                       label: Text(date),
+//                       selected: selectedDate == date,
+//                       onSelected: (selected) {
+//                         setState(() {
+//                           selectedDate = date;
+//                           selectedDuration = null;
+//                           selectedSlotId = null;
+//                         });
+//                       },
+//                     ),
+//                   );
+//                 },
+//               ),
+//             ),
+//             const SizedBox(height: 16),
+//           ],
+
+//           if (selectedDate != null) ...[
+//             const Text('Choose Duration'),
+//             const SizedBox(height: 8),
+//             Row(
+//               children: [
+//                 Expanded(
+//                   child: Container(
+//                     decoration: BoxDecoration(
+//                       border: Border.all(
+//                         color: selectedDuration == 30 ? Colors.blue : Colors.grey,
+//                       ),
+//                       borderRadius: BorderRadius.circular(12),
+//                       color: Colors.white,
+//                     ),
+//                     child: TextButton(
+//                       onPressed: () {
+//                         setState(() {
+//                           selectedDuration = 30;
+//                           _fetchAvailableSlots();
+//                         });
+//                       },
+//                       child: const Text(
+//                         '30 Min\nQuick Consultation',
+//                         textAlign: TextAlign.center,
+//                       ),
+//                     ),
+//                   ),
+//                 ),
+//                 const SizedBox(width: 10),
+//                 Expanded(
+//                   child: Container(
+//                     decoration: BoxDecoration(
+//                       border: Border.all(
+//                         color: selectedDuration == 60 ? Colors.blue : Colors.grey,
+//                       ),
+//                       borderRadius: BorderRadius.circular(12),
+//                       color: Colors.white,
+//                     ),
+//                     child: TextButton(
+//                       onPressed: () {
+//                         setState(() {
+//                           selectedDuration = 60;
+//                           _fetchAvailableSlots();
+//                         });
+//                       },
+//                       child: const Text(
+//                         '60 Min\nStandard Consultation',
+//                         textAlign: TextAlign.center,
+//                       ),
+//                     ),
+//                   ),
+//                 ),
+//               ],
+//             ),
+//             const SizedBox(height: 16),
+//           ],
+
+//           if (slots != null) ...[
+//             const Text('Select A Time Slot'),
+//             const SizedBox(height: 8),
+//             ListView.builder(
+//               shrinkWrap: true,
+//               physics: const NeverScrollableScrollPhysics(),
+//               itemCount: slots.length,
+//               itemBuilder: (context, index) {
+//                 final slot = slots[index];
+//                 return ListTile(
+//                   title: Text('${slot['startTime']} - ${slot['endTime']}'),
+//                   selected: selectedSlotId == slot['id'],
+//                   onTap: () {
+//                     setState(() {
+//                       selectedSlotId = slot['id'];
+//                     });
+//                   },
+//                 );
+//               },
+//             ),
+//             const SizedBox(height: 16),
+//           ],
+
+//           if (selectedSlotId != null) ...[
+//             SizedBox(
+//               width: double.infinity,
+//               child: ElevatedButton(
+//                 onPressed: () {
+//                   context.read<BookingBloc>().add(BookSlotEvent(selectedSlotId!));
+//                 },
+//                 style: ElevatedButton.styleFrom(
+//                   backgroundColor: const Color(0xFF8C2F39),
+//                   shape: RoundedRectangleBorder(
+//                     borderRadius: BorderRadius.circular(6),
+//                   ),
+//                 ),
+//                 child: const Text(
+//                   'PROCEED',
+//                   style: TextStyle(color: Colors.white),
+//                 ),
+//               ),
+//             ),
+//           ],
+//         ],
+//       ),
+//     );
+//   }
+// }
 import 'package:flutter/material.dart';
-import '../widget/recommended_doctors.dart'; // Import PhysicianCard widget
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../bloc/booking_bloc.dart';
+import '../widget/recommended_doctors.dart';
+import 'payment_webview_page.dart';
 
 class BookingPage extends StatefulWidget {
-  const BookingPage({super.key});
+  final int physicianId;
+  final String image;
+  final String name;
+  final String specialization;
+  final double rating;
+  final int experience;
+
+ const BookingPage({
+    super.key,
+    required this.physicianId,
+    required this.image,
+    required this.name,
+    required this.specialization,
+    required this.rating,
+    required this.experience,
+  });
 
   @override
   State<BookingPage> createState() => _BookingPageState();
 }
 
 class _BookingPageState extends State<BookingPage> {
-  List<String> dates = ['Today', 'Tomorrow', '12 June', '13 June', '14 June'];
-  int selectedDateIndex = 0;
+  String? selectedDate;
+  int? selectedDuration;
+  int? selectedSlotId;
+  bool termsAccepted = false;
+  
 
-  int selectedHour = 4;
-  int selectedMinute = 15;
-  bool isPm = true;
-  bool shareMedicalFiles = true;
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<BookingBloc>().add(FetchAvailableDatesEvent(widget.physicianId));
+    });
+  }
+
+  void _fetchAvailableSlots() {
+    if (selectedDate != null && selectedDuration != null) {
+      context.read<BookingBloc>().add(
+            FetchAvailableSlotsEvent(
+              widget.physicianId,
+              selectedDate!,
+              selectedDuration!,
+            ),
+          );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFFFFFFF),
       appBar: AppBar(
-        backgroundColor: const Color(0xFFEFF9FF),
+        backgroundColor: const Color(0xFFE7F5FC),
         elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => Navigator.pop(context),
+        ),
         title: const Text(
           'Schedule Physician',
           style: TextStyle(
-            color: Color(0xFF1C665E),
-            fontWeight: FontWeight.bold,
+            color: Colors.black,
+            fontWeight: FontWeight.w600,
           ),
         ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
-        ),
+        centerTitle: false,
       ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Physician Card
-                const PhysicianCard(
-                  image: 'assets/images/Doctor.png',
-                  name: 'Dr. Abeba Kebede',
-                  specialization: 'Cardiologist',
-                  rating: 4.5,
-                  experience: 12,
+      body: BlocBuilder<BookingBloc, BookingState>(
+        builder: (context, state) {
+          if (state is BookingLoading) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (state is AvailableDatesLoaded) {
+            return _buildBookingContent(context, state.dates, null, null);
+          } else if (state is AvailableSlotsLoaded) {
+            return _buildBookingContent(context, null, state.slots, null);
+          } else if (state is PaymentUrlLoaded) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => PaymentWebViewPage(paymentUrl: state.paymentUrl, slotId: selectedSlotId!),
                 ),
-                const SizedBox(height: 20),
+              );
+            });
+            return const Center(child: Text("Redirecting to payment..."));
+          } else if (state is BookingError) {
+            return Center(child: Text(state.message));
+          }
+          return const SizedBox.shrink();
+        },
+      ),
+    );
+  }
 
-                // Choose a Date Section
-                const Text(
-                  "Choose A Date",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 10),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: List.generate(dates.length, (index) {
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 8.0),
-                        child: ChoiceChip(
-                          label: Text(dates[index]),
-                          selected: selectedDateIndex == index,
-                          onSelected: (val) {
-                            setState(() {
-                              selectedDateIndex = index;
-                            });
-                          },
-                          selectedColor: Colors.teal,
-                        ),
-                      );
-                    }),
-                  ),
-                ),
-                const SizedBox(height: 20),
+  Widget _buildBookingContent(
+    BuildContext context,
+    List<String>? availableDates,
+    List<Map<String, dynamic>>? slots,
+    String? _,
+  ) {
+    final int availableSlotCount = slots?.length ?? 0;
 
-                // Time Info
-                Center(
-                  child: const Text(
-                    "Today\n10/6/2024\n9 Slots Available\n4 PM - 6 PM",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 14),
-                  ),
-                ),
-                const SizedBox(height: 20),
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Doctor Info Section
+        // ...existing code...
+PhysicianCard(
+  image: widget.image,
+  name: widget.name,
+  specialization: widget.specialization,
+  rating: widget.rating,
+  experience: widget.experience,
+),
+// ...existing code...
+          const SizedBox(height: 16),
 
-                // Pick A Time
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 16),
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: const Color(0xFFEFF9FF), width: 2), // Increased border weight
-                    borderRadius: BorderRadius.circular(12),
-                    color: Colors.white,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center, // Centered the title
-                    children: [
-                      const Text(
-                        "Pick a time",
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                      ),
-                      const Divider(color: Color(0xFFEFF9FF), thickness: 1),
-                      const SizedBox(height: 10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          NumberPicker(
-                            value: selectedHour,
-                            minValue: 1,
-                            maxValue: 12,
-                            onChanged: (value) => setState(() => selectedHour = value),
-                          ),
-                          const SizedBox(width: 10),
-                          NumberPicker(
-                            value: selectedMinute,
-                            minValue: 0,
-                            maxValue: 59,
-                            step: 15,
-                            onChanged: (value) => setState(() => selectedMinute = value),
-                          ),
-                          const SizedBox(width: 10),
-                          Column(
-                            children: [
-                              TextButton(
-                                onPressed: () => setState(() => isPm = false),
-                                child: Text(
-                                  "AM",
-                                  style: TextStyle(color: !isPm ? Colors.teal : Colors.black),
-                                ),
-                              ),
-                              TextButton(
-                                onPressed: () => setState(() => isPm = true),
-                                child: Text(
-                                  "PM",
-                                  style: TextStyle(color: isPm ? Colors.teal : Colors.black),
-                                ),
-                              ),
-                            ],
-                          )
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      SizedBox(
-                        width: double.infinity, // Full width for the button
-                        child: ElevatedButton(
-                          onPressed: () {},
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFFA55D68), // Background color
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.zero, // Rectangular shape
-                            ),
-                          ),
-                          child: const Text(
-                            "SAVE",
-                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 30),
+          // Choose a Date Section
+      // ...existing code...
 
-                // Terms and Conditions
-                Center(
-                  child: const Text(
-                    "Terms and Conditions",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  "The Document Governing The Contractual Relationship Between The Provider Of A Service And Its User. On This View, This Document Is Often Also Called “Terms Of Service” (TOS).",
-                  style: TextStyle(fontSize: 12),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 10),
+// Choose a Date Section
+if (availableDates != null) ...[
+  const Text(
+    'Choose A Date',
+    style: TextStyle(
+      color: Color(0xFF1D586E),
+      fontWeight: FontWeight.bold,
+    ),
+  ),
+  const SizedBox(height: 8),
+  SizedBox(
+    height: 40,
+    child: ListView.builder(
+      scrollDirection: Axis.horizontal,
+      itemCount: availableDates.length,
+      itemBuilder: (context, index) {
+        final date = availableDates[index];
+        final isSelected = selectedDate == date;
+        return Padding(
+          padding: const EdgeInsets.only(right: 8),
+          child: ChoiceChip(
+            label: Text(
+              date,
+              style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            selected: isSelected,
+            selectedColor: const Color(0xFFEFF9FF),
+            backgroundColor: Colors.white,
+            shape: StadiumBorder(
+              side: BorderSide(
+                color: const Color(0xFF1D586E),
+                width: 1.5,
+              ),
+            ),
+            onSelected: (selected) {
+              setState(() {
+                selectedDate = date;
+                selectedDuration = null;
+                selectedSlotId = null;
+              });
+            },
+          ),
+        );
+      },
+    ),
+  ),
+  const SizedBox(height: 16),
+],
 
-                // Checkbox
-                CheckboxListTile(
-                  value: shareMedicalFiles,
-                  onChanged: (value) => setState(() => shareMedicalFiles = value ?? false),
-                  title: const Text(
-                    "Share All Previous Medical Files With The Doctor",
-                    style: TextStyle(color: Colors.black),
-                  ),
-                  controlAffinity: ListTileControlAffinity.leading,
-                  activeColor: const Color(0xFFA55D68), // Checkbox color when selected
-                  contentPadding: EdgeInsets.zero,
-                ),
-                const SizedBox(height: 10),
-
-                // Proceed Button
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFA55D68),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.zero, // Rectangular shape
-                      ),
-                    ),
-                    child: const Text(
-                      "PROCEED",
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ),
-              ],
+// Choose Duration Section
+if (selectedDate != null) ...[
+  const Text('Choose Duration', style: TextStyle(
+      color: Color(0xFF1D586E),
+      fontWeight: FontWeight.bold,)),
+  const SizedBox(height: 8),
+  Row(
+    children: [
+      Expanded(
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: const Color(0xFF1D586E),
+            ),
+            borderRadius: BorderRadius.circular(12),
+            color: selectedDuration == 30 ? const Color(0xFFEFF9FF) : Colors.white,
+          ),
+          child: TextButton(
+            onPressed: () {
+              setState(() {
+                selectedDuration = 30;
+                _fetchAvailableSlots();
+              });
+            },
+            child: const Text(
+              '30 Min\nQuick Consultation',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.black),
             ),
           ),
         ),
       ),
-    );
-  }
-}
+      const SizedBox(width: 10),
+      Expanded(
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: const Color(0xFF1D586E),
+            ),
+            borderRadius: BorderRadius.circular(12),
+            color: selectedDuration == 60 ? const Color(0xFFEFF9FF) : Colors.white,
+          ),
+          child: TextButton(
+            onPressed: () {
+              setState(() {
+                selectedDuration = 60;
+                _fetchAvailableSlots();
+              });
+            },
+            child: const Text(
+              '60 Min\nStandard Consultation',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.black),
+            ),
+          ),
+        ),
+      ),
+    ],
+  ),
+  const SizedBox(height: 16),
+],
 
-// Helper Widget for number picking
-class NumberPicker extends StatelessWidget {
-  final int value;
-  final int minValue;
-  final int maxValue;
-  final int step;
-  final Function(int) onChanged;
+// Available Slots Section
+if (slots != null) ...[
+  Container(
+  width: double.infinity,
+  height: 90,
+  decoration: BoxDecoration(
+    borderRadius: BorderRadius.circular(12),
+    color: Color(0xFFF5F5F5),
+  ),
+  child: Column(
+    mainAxisAlignment: MainAxisAlignment.center,
+    crossAxisAlignment: CrossAxisAlignment.center,
+    children: [
+      Text(
+        selectedDate ?? '',
+        style: const TextStyle(
+          fontWeight: FontWeight.w600,
+          fontSize: 16,
+                    color: Color(0xFF2A7FBA),
 
-  const NumberPicker({
-    super.key,
-    required this.value,
-    required this.minValue,
-    required this.maxValue,
-    this.step = 1,
-    required this.onChanged,
-  });
+        ),
+        textAlign: TextAlign.center,
+      ),
+      const SizedBox(height: 8),
+      Text(
+        '$availableSlotCount Slots Available',
+        style: const TextStyle(
+          fontWeight: FontWeight.w500,
+          fontSize: 14,
+          color: Color(0xFF2A7FBA),
+        ),
+        textAlign: TextAlign.center,
+      ),
+    ],
+  ),
+),
+  const SizedBox(height: 16),
+  const Text('Select A Time Slot', style: TextStyle(
+      color: Color(0xFF1D586E),
+      fontWeight: FontWeight.bold,)),
+  const SizedBox(height: 8),
+  Container(
+    decoration: BoxDecoration(
+      border: Border.all(color: const Color(0xFF1D586E)),
+      borderRadius: BorderRadius.circular(8),
+      color: Colors.white,
+    ),
+    constraints: const BoxConstraints(maxHeight: 200),
+    child: ListView.builder(
+      shrinkWrap: true,
+      itemCount: slots.length,
+      itemBuilder: (context, index) {
+        final slot = slots[index];
+        final isSelected = selectedSlotId == slot['id'];
+        return Container(
+          decoration: BoxDecoration(
+            color: isSelected ? const Color(0xFFEFF9FF) : Colors.white,
+            border: Border(
+              bottom: BorderSide(
+                color: const Color(0xFF1D586E).withOpacity(0.2),
+                width: 1,
+              ),
+            ),
+          ),
+          child: ListTile(
+            title: Text(
+              '${slot['startTime']} - ${slot['endTime']}',
+              style: const TextStyle(color: Colors.black),
+            ),
+            selected: isSelected,
+            selectedTileColor: const Color(0xFFEFF9FF),
+            onTap: () {
+              setState(() {
+                selectedSlotId = slot['id'];
+              });
+            },
+          ),
+        );
+      },
+    ),
+  ),
+  const SizedBox(height: 16),
+],
+// ...existing code...
 
-  @override
-  Widget build(BuildContext context) {
-    final values = List.generate(((maxValue - minValue) ~/ step + 1), (i) => minValue + i * step);
+          // Proceed Button
+          if (selectedSlotId != null) ...[
+  const SizedBox(height: 16),
+  Column(
+  crossAxisAlignment: CrossAxisAlignment.center,
 
-    return DropdownButton<int>(
-      value: value,
-      items: values.map((e) => DropdownMenuItem(child: Text(e.toString()), value: e)).toList(),
-      onChanged: (val) => onChanged(val!),
+    children: [
+      const Text(
+        'Terms And Conditions',
+        style: TextStyle(fontWeight: FontWeight.bold),
+      ),
+      const SizedBox(height: 4),
+      const Text(
+        'The document governing the contractual relationship between the provider of a service and its user. On the web, this document is often also called “Terms of Service” (ToS).',
+        style: TextStyle(fontSize: 10, color: Colors.grey),
+      ),
+    ],
+  ),
+  const SizedBox(height: 8),
+  Row(
+    children: [
+      Checkbox(
+        value: termsAccepted,
+         fillColor: MaterialStateProperty.resolveWith<Color>(
+    (Set<MaterialState> states) {
+      if (states.contains(MaterialState.selected)) {
+        return const Color(0xFFA55D68); // Your custom color when checked
+      }
+      return Colors.grey; // Default color when unchecked
+    },
+  ),
+        
+        onChanged: (val) {
+          setState(() {
+            termsAccepted = val ?? false;
+          });
+        },
+      ),
+      const Expanded(
+        child: Text(
+          'Share All Previous Medical Files With The Doctor',
+          style: TextStyle(fontSize: 12),
+        ),
+      )
+    ],
+  ),
+  if (termsAccepted)
+    SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: () {
+          context.read<BookingBloc>().add(BookSlotEvent(selectedSlotId!));
+        },
+        style: ElevatedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          backgroundColor: Color(0xFFA55D68),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(6),
+          ),
+        ),
+        child: const Text(
+          'PROCEED',
+          style: TextStyle(color: Colors.white),
+        ),
+      ),
+    ),
+],
+        ],
+      ),
     );
   }
 }

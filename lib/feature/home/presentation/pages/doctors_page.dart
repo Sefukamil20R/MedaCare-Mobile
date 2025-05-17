@@ -74,6 +74,7 @@ class _DoctorsPageState extends State<DoctorsPage> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => PhysicianDetailsPage(
+                                id: physician.id, // Pass the physician ID
                                 image: physician.profilePhotoUrl ?? 'assets/images/Doctor.png',
                                 name: '${physician.firstName} ${physician.lastName}',
                                 specialization: physician.specialization,
@@ -113,7 +114,7 @@ class _DoctorsPageState extends State<DoctorsPage> {
           BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: 'My Appointments'),
           BottomNavigationBarItem(icon: Icon(Icons.people), label: 'All Doctors'),
           BottomNavigationBarItem(icon: Icon(Icons.local_hospital), label: 'All Hospitals'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+          // BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
       ),
     );

@@ -16,13 +16,21 @@ import 'feature/Auth/presentation/bloc/auth_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
+import 'feature/home/data/datasource/booking_remote_data_source.dart';
 import 'feature/home/data/datasource/home_remote_data_source.dart';
+import 'feature/home/data/repository_impl/booking_repository_impl.dart';
 import 'feature/home/data/repository_impl/home_repository_impl.dart';
+import 'feature/home/domain/repositories/booking_repository.dart';
 import 'feature/home/domain/repositories/home_repository.dart';
+import 'feature/home/domain/usecases/book_slot_usecase.dart';
+import 'feature/home/domain/usecases/finalize_booking_usecase.dart';
 import 'feature/home/domain/usecases/get_all_institutions.dart';
 import 'feature/home/domain/usecases/get_all_physicians.dart';
+import 'feature/home/domain/usecases/get_available_dates_usecase.dart';
+import 'feature/home/domain/usecases/get_available_slots_usecase.dart';
 import 'feature/home/domain/usecases/get_recommended_institutions.dart';
 import 'feature/home/domain/usecases/get_recommended_physicians.dart';
+import 'feature/home/presentation/bloc/booking_bloc.dart';
 import 'feature/home/presentation/bloc/home_bloc.dart';
 
 final sl = GetIt.instance;
@@ -40,6 +48,12 @@ Future<void> setupLocator() async {
           resendVerificationEmailUseCase: sl(),
           completePatientProfileUseCase: sl(),
         ));
+      sl.registerFactory(() => BookingBloc(
+        getAvailableDatesUseCase: sl(),
+        getAvailableSlotsUseCase: sl(),
+        bookSlotUseCase: sl(),
+        finalizeBookingUseCase: sl(),
+      ));
     print('AuthBloc registered.');
 
     sl.registerFactory(() => HomeBloc(
@@ -64,6 +78,13 @@ Future<void> setupLocator() async {
     sl.registerLazySingleton(() => GetRecommendedPhysicians(sl()));
     sl.registerLazySingleton(() => GetAllInstitutions(sl()));
     sl.registerLazySingleton(() => GetAllPhysicians(sl()));
+    
+
+
+  sl.registerLazySingleton(() => GetAvailableDatesUseCase(repository: sl()));
+  sl.registerLazySingleton(() => GetAvailableSlotsUseCase(repository: sl()));
+  sl.registerLazySingleton(() => BookSlotUseCase(repository: sl()));
+  sl.registerLazySingleton(() => FinalizeBookingUseCase(repository: sl()));
 
     // Repository
     sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(
@@ -71,12 +92,18 @@ Future<void> setupLocator() async {
           sharedPreferences: sl(),
         ));
     sl.registerLazySingleton<HomeRepository>(() => HomeRepositoryImpl(remoteDataSource: sl()));
+    sl.registerLazySingleton<BookingRepository>(
+      () => BookingRepositoryImpl(remoteDataSource: sl()));
 
     // Data sources
     sl.registerLazySingleton<AuthRemoteDataSource>(
       () => AuthRemoteDataSourceImpl(client: sl()),
     );
     sl.registerLazySingleton<HomeRemoteDataSource>(() => HomeRemoteDataSourceImpl(client: sl()));
+   sl.registerLazySingleton<BookingRemoteDataSource>(
+      () => BookingRemoteDataSourceImpl(client: sl()));
+
+
 
     // Services
     sl.registerLazySingleton(() => AuthService());
@@ -85,7 +112,7 @@ Future<void> setupLocator() async {
     // External
     sl.registerLazySingleton(() => http.Client());
     print('http.Client registered.');
-
+    
     final sharedPrefs = await SharedPreferences.getInstance();
     sl.registerLazySingleton(() => sharedPrefs);
     print('SharedPreferences registered.');

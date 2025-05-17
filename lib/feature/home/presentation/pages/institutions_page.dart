@@ -63,34 +63,35 @@ class _InstitutionsPageState extends State<InstitutionsPage> {
                     return const Center(child: Text('No institutions available.'));
                   }
 
-                  return ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    itemCount: institutions.length,
-                    itemBuilder: (context, index) {
-                      final institution = institutions[index];
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => InstitutionDetailsPage(
-                                image: institution.companyLogo ?? 'assets/images/inst.png',
-                                name: institution.name,
-                                specialization: institution.offeredSpecializations,
-                                location: '${institution.subCityOrDistrict}, ${institution.regionOrState}',
-                              ),
-                            ),
-                          );
-                        },
-                        child: InstitutionCard(
-                          image: institution.companyLogo ?? 'assets/images/inst.png',
-                          name: institution.name,
-                          specialization: institution.offeredSpecializations,
-                          location: '${institution.subCityOrDistrict}, ${institution.regionOrState}',
-                        ),
-                      );
-                    },
-                  );
+                  return ListView.separated(
+  padding: const EdgeInsets.symmetric(horizontal: 16),
+  itemCount: institutions.length,
+  separatorBuilder: (context, index) => const SizedBox(height: 25), // 16 pixels vertical space
+  itemBuilder: (context, index) {
+    final institution = institutions[index];
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => InstitutionDetailsPage(
+              image: institution.companyLogo ?? 'assets/images/inst.png',
+              name: institution.name,
+              specialization: institution.offeredSpecializations,
+              location: '${institution.subCityOrDistrict}, ${institution.regionOrState}',
+            ),
+          ),
+        );
+      },
+      child: InstitutionCard(
+        image: institution.companyLogo ?? 'assets/images/inst.png',
+        name: institution.name,
+        specialization: institution.offeredSpecializations ?? '',
+        location: '${institution.subCityOrDistrict ?? ''}, ${institution.regionOrState ?? ''}',
+      ),
+    );
+  },
+);
                 } else if (state is HomeError) {
                   return Center(child: Text(state.message));
                 }
@@ -111,7 +112,7 @@ class _InstitutionsPageState extends State<InstitutionsPage> {
           BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: 'My Appointments'),
           BottomNavigationBarItem(icon: Icon(Icons.people), label: 'All Doctors'),
           BottomNavigationBarItem(icon: Icon(Icons.local_hospital), label: 'All Hospitals'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+          // BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
       ),
     );

@@ -21,7 +21,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
 Future<void> _navigateToNextScreen() async {
   // Simulate a delay for the splash screen
-  await Future.delayed(const Duration(seconds: 3)); // Reduced delay for better UX
+  await Future.delayed(const Duration(seconds: 10)); // Reduced delay for better UX
 
   // Get SharedPreferences instance
   final prefs = await SharedPreferences.getInstance();
