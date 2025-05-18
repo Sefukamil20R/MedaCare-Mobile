@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+
+import '../bloc/booking_bloc.dart';
 import '../widget/recommended_doctors.dart';
 import '../widget/reviewcard.dart';
 import 'booking.dart';
@@ -56,7 +60,51 @@ class PhysicianDetailsPage extends StatelessWidget {
               experience: experience,
             ),
             const SizedBox(height: 16),
-
+            
+      BlocConsumer<BookingBloc, BookingState>(
+  listener: (context, state) {
+    if (state is RatingSubmitted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Thank you for your rating!')),
+      );
+    } else if (state is RatingError) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to submit rating: ${state.message}')),
+      );
+    }
+  },
+  builder: (context, state) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Rate this physician:',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8),
+        RatingBar.builder(
+          initialRating: 0,
+          minRating: 1,
+          direction: Axis.horizontal,
+          allowHalfRating: false,
+          itemCount: 5,
+          itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
+          itemBuilder: (context, _) => const Icon(Icons.star, color: Colors.amber),
+          onRatingUpdate: (rating) {
+            context.read<BookingBloc>().add(
+              SubmitRatingEvent(physicianId: id, rating: rating.toInt()),
+            );
+          },
+        ),
+        if (state is RatingSubmitting)
+          const Padding(
+            padding: EdgeInsets.only(top: 8.0),
+            child: LinearProgressIndicator(),
+          ),
+      ],
+    );
+  },
+),
             // Virtual Consultation Card
             Container(
               padding: const EdgeInsets.all(12),

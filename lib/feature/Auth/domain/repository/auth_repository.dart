@@ -11,5 +11,7 @@ abstract class AuthRepository {
   Future<Either<Failure, void>> logout();
   Future<void> resendVerificationEmail(String email);
    Future<void> completePatientProfile(Map<String, dynamic> profileData);
-
+  Future<void> sendResetPasswordEmail(String email);
+Future<void> verifyResetCode(String email, String code);
+Future<void> resetPassword(String email, String newPassword);
 }

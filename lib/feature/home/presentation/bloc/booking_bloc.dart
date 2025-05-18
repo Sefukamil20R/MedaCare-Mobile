@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
+import '../../domain/usecases/SubmitRatingUseCase.dart';
 import '../../domain/usecases/get_available_dates_usecase.dart';
 import '../../domain/usecases/get_available_slots_usecase.dart';
 import '../../domain/usecases/book_slot_usecase.dart';
@@ -12,12 +13,14 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
   final GetAvailableSlotsUseCase getAvailableSlotsUseCase;
   final BookSlotUseCase bookSlotUseCase;
   final FinalizeBookingUseCase finalizeBookingUseCase;
+  final SubmitRatingUseCase submitRatingUseCase;
 
   BookingBloc({
     required this.getAvailableDatesUseCase,
     required this.getAvailableSlotsUseCase,
     required this.bookSlotUseCase,
     required this.finalizeBookingUseCase,
+    required this.submitRatingUseCase,
   }) : super(BookingInitial()) {
     on<FetchAvailableDatesEvent>((event, emit) async {
       emit(BookingLoading());
@@ -62,5 +65,17 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
         (_) => emit(BookingFinalized()),
       );
     });
+    on<SubmitRatingEvent>((event, emit) async {
+  emit(RatingSubmitting());
+  try {
+    await submitRatingUseCase(
+      physicianId: event.physicianId,
+      rating: event.rating,
+    );
+    emit(RatingSubmitted());
+  } catch (e) {
+    emit(RatingError(e.toString()));
+  }
+});
   }
 }

@@ -11,6 +11,9 @@ abstract class AuthRemoteDataSource {
   Future<void> logout();
   Future<void> resendVerificationEmail(String email);
   Future<void> completePatientProfile(Map<String, dynamic> profileData);
+  Future<void> sendResetPasswordEmail(String email);
+  Future<void> verifyResetCode(String email, String code);
+  Future<void> resetPassword(String email, String newPassword);
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -151,11 +154,13 @@ Future<UserModel> getUserProfile(String token) async {
       );
 
       final body = jsonDecode(response.body);
-      if (response.statusCode == 200 && body['status'] == 'success') {
-        print('Verification email resent successfully');
-      } else {
-        throw Exception(body['message'] ?? 'Failed to resend verification email');
-      }
+      print('Response Status Code (code  resending): ${response.statusCode}');
+      print('Response Body (code resending ): ${response.body}');
+      if ((response.statusCode == 200 || response.statusCode == 201) && body['status'] == 'success') {
+          print('Verification email resent successfully');
+}       else {
+                  throw Exception(body['message'] ?? 'Failed to resend verification email');
+}
     } catch (e) {
       print('Error during resending verification email: $e'); // Log the error
       throw Exception('Error during resending verification email: $e');
@@ -199,6 +204,53 @@ Future<void> completePatientProfile(Map<String, dynamic> profileData) async {
   } catch (e) {
     print('Error during profile completion: $e');
     throw Exception('Error during profile completion: $e');
+  }
+}
+// 1. Send reset password email
+Future<void> sendResetPasswordEmail(String email) async {
+  final response = await client.post(
+    Uri.parse('$baseUrl/auth/forgot-password?email=$email'),
+  );
+  final body = jsonDecode(response.body);
+  print('Response Status Code (sendResetPasswordEmail): ${response.statusCode}');
+    print('Response Body (sendResetPasswordEmail): ${response.body}');
+
+  if ((response.statusCode == 200 || response.statusCode == 201) && body['status'] == 'success') {
+    return;
+  } else {
+    throw Exception(body['message'] ?? 'Failed to send reset password email');
+  }
+}
+
+// 2. Verify code
+Future<void> verifyResetCode(String email, String code) async {
+  final response = await client.post(
+    Uri.parse('$baseUrl/auth/verify-verification-code?email=$email&code=$code'),
+  );
+  final body = jsonDecode(response.body);
+   print('Response Status Code (VerifyResetCode): ${response.statusCode}');
+    print('Response Body (VerifyResetCode): ${response.body}');
+  if ((response.statusCode == 200 || response.statusCode == 201) && body['status'] == 'success') {
+    return;
+  } else {
+    throw Exception(body['message'] ?? 'Failed to verify code');
+  }
+}
+
+// 3. Reset password
+Future<void> resetPassword(String email, String newPassword) async {
+  final response = await client.patch(
+    Uri.parse('$baseUrl/auth/password-reset'),
+    headers: {'Content-Type': 'application/json'},
+    body: jsonEncode({'email': email, 'password': newPassword}),
+  );
+  final body = jsonDecode(response.body);
+    print('Response Status Code (ResetPassword): ${response.statusCode}');
+      print('Response Body (ResetPassword): ${response.body}');
+  if ((response.statusCode == 200 || response.statusCode == 201) && body['status'] == 'success') {
+    return;
+  } else {
+    throw Exception(body['message'] ?? 'Failed to reset password');
   }
 }
 }

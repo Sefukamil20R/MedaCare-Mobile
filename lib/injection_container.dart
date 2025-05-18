@@ -10,6 +10,7 @@ import 'feature/Auth/domain/usecase/completeprofile.dart';
 import 'feature/Auth/domain/usecase/get_user_profile_usecase.dart';
 import 'feature/Auth/domain/usecase/login_user_usecase.dart';
 import 'feature/Auth/domain/usecase/logout_usecase.dart';
+import 'feature/Auth/domain/usecase/password_reset_usecases.dart';
 import 'feature/Auth/domain/usecase/register_user_usecase.dart';
 import 'feature/Auth/domain/usecase/verify_email_usecase.dart';
 import 'feature/Auth/presentation/bloc/auth_bloc.dart';
@@ -22,6 +23,7 @@ import 'feature/home/data/repository_impl/booking_repository_impl.dart';
 import 'feature/home/data/repository_impl/home_repository_impl.dart';
 import 'feature/home/domain/repositories/booking_repository.dart';
 import 'feature/home/domain/repositories/home_repository.dart';
+import 'feature/home/domain/usecases/SubmitRatingUseCase.dart';
 import 'feature/home/domain/usecases/book_slot_usecase.dart';
 import 'feature/home/domain/usecases/finalize_booking_usecase.dart';
 import 'feature/home/domain/usecases/get_all_institutions.dart';
@@ -47,12 +49,16 @@ Future<void> setupLocator() async {
           logoutUseCase: sl(),
           resendVerificationEmailUseCase: sl(),
           completePatientProfileUseCase: sl(),
+          sendResetPasswordEmailUseCase: sl(),
+          verifyResetCodeUseCase: sl(),
+          resetPasswordUseCase: sl(),
         ));
       sl.registerFactory(() => BookingBloc(
         getAvailableDatesUseCase: sl(),
         getAvailableSlotsUseCase: sl(),
         bookSlotUseCase: sl(),
         finalizeBookingUseCase: sl(),
+        submitRatingUseCase: sl(),
       ));
     print('AuthBloc registered.');
 
@@ -73,7 +79,10 @@ Future<void> setupLocator() async {
     sl.registerLazySingleton(() => LogoutUseCase(sl()));
     sl.registerLazySingleton(() => ResendVerificationEmailUseCase(sl()));
     sl.registerLazySingleton(() => CompletePatientProfileUseCase(sl()));
-
+    sl.registerLazySingleton(() => SendResetPasswordEmailUseCase(sl()));
+    sl.registerLazySingleton(() => VerifyResetCodeUseCase(sl()));
+    sl.registerLazySingleton(() => ResetPasswordUseCase(sl()));
+    
     sl.registerLazySingleton(() => GetRecommendedInstitutions(sl()));
     sl.registerLazySingleton(() => GetRecommendedPhysicians(sl()));
     sl.registerLazySingleton(() => GetAllInstitutions(sl()));
@@ -85,7 +94,7 @@ Future<void> setupLocator() async {
   sl.registerLazySingleton(() => GetAvailableSlotsUseCase(repository: sl()));
   sl.registerLazySingleton(() => BookSlotUseCase(repository: sl()));
   sl.registerLazySingleton(() => FinalizeBookingUseCase(repository: sl()));
-
+  sl.registerLazySingleton(() => SubmitRatingUseCase(repository: sl()));
     // Repository
     sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(
           remoteDataSource: sl(),

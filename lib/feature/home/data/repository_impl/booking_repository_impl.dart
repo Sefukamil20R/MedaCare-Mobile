@@ -57,4 +57,8 @@ class BookingRepositoryImpl implements BookingRepository {
       return Left(ServerFailure(message: e.toString()));
     }
   }
+ @override
+  Future<void> submitRating({required int physicianId, required int rating}) {
+    return remoteDataSource.submitRating(physicianId: physicianId, rating: rating);
+  }
 }

@@ -49,3 +49,11 @@ class BookingError extends BookingState {
   List<Object> get props => [message];
 }
 
+class RatingSubmitting extends BookingState {}
+
+class RatingSubmitted extends BookingState {}
+
+class RatingError extends BookingState {
+  final String message;
+  RatingError(this.message);
+}

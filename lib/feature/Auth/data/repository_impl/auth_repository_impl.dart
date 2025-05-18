@@ -84,4 +84,16 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<void> completePatientProfile(Map<String, dynamic> profileData) async {
     await remoteDataSource.completePatientProfile(profileData);
   }
+  @override
+Future<void> sendResetPasswordEmail(String email) =>
+    remoteDataSource.sendResetPasswordEmail(email);
+
+@override
+Future<void> verifyResetCode(String email, String code) =>
+    remoteDataSource.verifyResetCode(email, code);
+
+@override
+Future<void> resetPassword(String email, String newPassword) =>
+    remoteDataSource.resetPassword(email, newPassword);
+  
 }

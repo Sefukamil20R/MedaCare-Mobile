@@ -7,6 +7,7 @@ import 'feature/Auth/domain/usecase/completeprofile.dart';
 import 'feature/Auth/domain/usecase/get_user_profile_usecase.dart';
 import 'feature/Auth/domain/usecase/login_user_usecase.dart';
 import 'feature/Auth/domain/usecase/logout_usecase.dart';
+import 'feature/Auth/domain/usecase/password_reset_usecases.dart';
 import 'feature/Auth/domain/usecase/register_user_usecase.dart';
 import 'feature/Auth/domain/usecase/verify_email_usecase.dart';
 import 'feature/Auth/presentation/bloc/auth_bloc.dart';
@@ -15,6 +16,7 @@ import 'feature/Auth/presentation/pages/Signin_page.dart';
 import 'feature/Auth/presentation/pages/Signup_page.dart';
 import 'feature/Auth/presentation/pages/profile.dart';
 import 'feature/Auth/presentation/pages/verify_Success.dart';
+import 'feature/home/domain/usecases/SubmitRatingUseCase.dart';
 import 'feature/home/domain/usecases/book_slot_usecase.dart';
 import 'feature/home/domain/usecases/finalize_booking_usecase.dart';
 import 'feature/home/domain/usecases/get_available_dates_usecase.dart';
@@ -48,6 +50,9 @@ class MedaCareApp extends StatelessWidget {
             logoutUseCase: sl<LogoutUseCase>(),
             resendVerificationEmailUseCase: sl<ResendVerificationEmailUseCase>(),
             completePatientProfileUseCase: sl<CompletePatientProfileUseCase>(),
+            sendResetPasswordEmailUseCase: sl<SendResetPasswordEmailUseCase>(),
+            verifyResetCodeUseCase: sl<VerifyResetCodeUseCase>(),
+            resetPasswordUseCase: sl<ResetPasswordUseCase>(),
           ),
         ),
         BlocProvider<HomeBloc>(
@@ -64,7 +69,9 @@ class MedaCareApp extends StatelessWidget {
             getAvailableDatesUseCase: sl<GetAvailableDatesUseCase>(),
             getAvailableSlotsUseCase: sl<GetAvailableSlotsUseCase>(),
             bookSlotUseCase: sl<BookSlotUseCase>(),
-            finalizeBookingUseCase: sl<FinalizeBookingUseCase>(),
+            finalizeBookingUseCase: sl<FinalizeBookingUseCase>(), submitRatingUseCase: sl<SubmitRatingUseCase>(),
+            
+
           ),
         ),
       ],

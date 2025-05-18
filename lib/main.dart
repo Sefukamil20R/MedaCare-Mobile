@@ -3,6 +3,7 @@ import 'app.dart';
 import 'feature/Auth/data/services/auth_service.dart';
 import 'injection_container.dart';
 import 'package:http/http.dart' as http;
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await setupLocator();

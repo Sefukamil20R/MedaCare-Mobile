@@ -3,17 +3,18 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
-import 'VerifyCodePage.dart';
+import 'reset_password_page.dart';
 
-class SendResetEmailPage extends StatefulWidget {
-  const SendResetEmailPage({super.key});
+class VerifyCodePage extends StatefulWidget {
+  final String email;
+  const VerifyCodePage({super.key, required this.email});
 
   @override
-  State<SendResetEmailPage> createState() => _SendResetEmailPageState();
+  State<VerifyCodePage> createState() => _VerifyCodePageState();
 }
 
-class _SendResetEmailPageState extends State<SendResetEmailPage> {
-  final TextEditingController _emailController = TextEditingController();
+class _VerifyCodePageState extends State<VerifyCodePage> {
+  final TextEditingController _codeController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -28,11 +29,11 @@ class _SendResetEmailPageState extends State<SendResetEmailPage> {
               padding: const EdgeInsets.symmetric(horizontal: 24.0),
               child: BlocConsumer<AuthBloc, AuthState>(
                 listener: (context, state) {
-                  if (state is ResetPasswordEmailSent) {
+                  if (state is ResetPasswordCodeVerified) {
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => VerifyCodePage(email: _emailController.text.trim()),
+                        builder: (_) => ResetPasswordPage(email: widget.email),
                       ),
                     );
                   } else if (state is ResetPasswordError) {
@@ -47,16 +48,18 @@ class _SendResetEmailPageState extends State<SendResetEmailPage> {
                     children: [
                       Image.asset('assets/images/medaCare_logo.png', height: 60),
                       const SizedBox(height: 32),
-                      const Text("Reset Password", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF1D586E))),
+                      const Text("Enter Verification Code", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF1D586E))),
                       const SizedBox(height: 20),
                       TextField(
-                        controller: _emailController,
+                        controller: _codeController,
+                        keyboardType: TextInputType.number,
                         decoration: InputDecoration(
-                          hintText: 'Email',
+                          hintText: '6-digit Code',
                           filled: true,
                           fillColor: Colors.white,
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                         ),
+                        maxLength: 6,
                       ),
                       const SizedBox(height: 20),
                       SizedBox(
@@ -69,18 +72,18 @@ class _SendResetEmailPageState extends State<SendResetEmailPage> {
                           onPressed: state is ResetPasswordLoading
                               ? null
                               : () {
-                                  final email = _emailController.text.trim();
-                                  if (email.isEmpty) {
+                                  final code = _codeController.text.trim();
+                                  if (code.length != 6) {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text('Please enter your email')),
+                                      const SnackBar(content: Text('Please enter the 6-digit code')),
                                     );
                                     return;
                                   }
-                                  context.read<AuthBloc>().add(SendResetPasswordEmailEvent(email));
+                                  context.read<AuthBloc>().add(VerifyResetCodeEvent(widget.email, code));
                                 },
                           child: state is ResetPasswordLoading
                               ? const CircularProgressIndicator(color: Colors.white)
-                              : const Text("SEND CODE", style: TextStyle(fontSize: 16, color: Colors.white)),
+                              : const Text("VERIFY CODE", style: TextStyle(fontSize: 16, color: Colors.white)),
                         ),
                       ),
                     ],

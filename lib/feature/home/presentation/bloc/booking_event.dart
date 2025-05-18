@@ -52,3 +52,9 @@ class PaymentUrlLoaded extends BookingState {
   @override
   List<Object> get props => [paymentUrl];
 }
+class SubmitRatingEvent extends BookingEvent {
+  final int physicianId;
+  final int rating;
+
+  SubmitRatingEvent({required this.physicianId, required this.rating});
+}
