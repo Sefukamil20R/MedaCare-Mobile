@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/errors/utility.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
@@ -29,20 +30,26 @@ class _VerifyPageState extends State<VerifyPage> {
             child: BlocConsumer<AuthBloc, AuthState>(
               listener: (context, state) {
                 if (state is EmailVerifiedState) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Email verified successfully!')),
-                  );
+                 showCustomSnackBar(
+        context,
+        'Email verified successfully!',
+        Colors.green,
+      );
                   Navigator.pushReplacementNamed(context, '/signin');
                 } else if (state is AuthError) {
                   if (state.message.contains('already verified')) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('User is already verified. Please log in.')),
-                    );
+                    showCustomSnackBar(
+          context,
+          'User is already verified. Please log in.',
+          Colors.red,
+        );
                     Navigator.pushReplacementNamed(context, '/verify_success');
                   } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(state.message)),
-                    );
+                    showCustomSnackBar(
+          context,
+          state.message,
+          Colors.red,
+        );
                   }
                 }
               },

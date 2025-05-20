@@ -14,3 +14,4 @@ class GetRecommendedPhysiciansEvent extends HomeEvent {}
 class GetAllInstitutionsEvent extends HomeEvent {}
 
 class GetAllPhysiciansEvent extends HomeEvent {}
+class GetMyAppointmentsEvent extends HomeEvent {}

@@ -6,8 +6,9 @@ import 'package:http/http.dart' as http;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
   await setupLocator();
-
+  
   // ✅ Debugging: Check token BEFORE runApp
   final authService = sl<AuthService>();
   final token = await authService.getToken();

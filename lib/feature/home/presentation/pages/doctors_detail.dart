@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
+import '../../../../core/errors/utility.dart';
 import '../bloc/booking_bloc.dart';
 import '../widget/recommended_doctors.dart';
 import '../widget/reviewcard.dart';
@@ -64,12 +65,16 @@ class PhysicianDetailsPage extends StatelessWidget {
       BlocConsumer<BookingBloc, BookingState>(
   listener: (context, state) {
     if (state is RatingSubmitted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Thank you for your rating!')),
+      showCustomSnackBar(
+        context,
+        'Thank you for your rating!',
+        Colors.green, // Success color
       );
     } else if (state is RatingError) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to submit rating: ${state.message}')),
+      showCustomSnackBar(
+        context,
+        'Failed to submit rating: ${state.message}',
+        Colors.red, // Error color
       );
     }
   },

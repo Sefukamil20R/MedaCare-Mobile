@@ -17,6 +17,7 @@ import 'doctors_detail.dart';
 import 'doctors_page.dart';
 import 'institutions_page.dart';
 import 'instutuitions_detal.dart';
+import 'my_appointments.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -26,12 +27,47 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
- @override
+    int _selectedIndex = 0; // <-- Add this
+    void _onItemTapped(int index) async {
+  setState(() {
+    _selectedIndex = index;
+  });
+
+  if (index == 1) {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const MyAppointmentsPage()),
+    );
+    if (result == true) {
+      context.read<HomeBloc>().add(GetRecommendedPhysiciansEvent());
+      context.read<HomeBloc>().add(GetRecommendedInstitutionsEvent());
+    }
+  } else if (index == 2) {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const DoctorsPage()),
+    );
+    if (result == true) {
+      context.read<HomeBloc>().add(GetRecommendedPhysiciansEvent());
+      context.read<HomeBloc>().add(GetRecommendedInstitutionsEvent());
+    }
+  } else if (index == 3) {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const InstitutionsPage()),
+    );
+    if (result == true) {
+      context.read<HomeBloc>().add(GetRecommendedPhysiciansEvent());
+      context.read<HomeBloc>().add(GetRecommendedInstitutionsEvent());
+    }
+  }
+  // index 0 is Home, so do nothing
+}
+@override
 void initState() {
   super.initState();
-  print('HomePage initState called');
   Future.microtask(() {
-    context.read<AuthBloc>().add(GetUserProfileEvent());
+    // context.read<AuthBloc>().add(GetUserProfileEvent());
     context.read<HomeBloc>().add(GetRecommendedPhysiciansEvent());
     context.read<HomeBloc>().add(GetRecommendedInstitutionsEvent());
   });
@@ -337,9 +373,10 @@ showModalBottomSheet(
         color: Colors.white,
         child: BottomNavigationBar(
           type: BottomNavigationBarType.fixed,
-          currentIndex: 0,
+          currentIndex: _selectedIndex,
           selectedItemColor: const Color(0xFF1D586E),
           unselectedItemColor: Colors.black,
+          onTap: _onItemTapped, // <-- Use the method here
           items: const [
             BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
             BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: 'My Appointments'),

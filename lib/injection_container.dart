@@ -30,6 +30,7 @@ import 'feature/home/domain/usecases/get_all_institutions.dart';
 import 'feature/home/domain/usecases/get_all_physicians.dart';
 import 'feature/home/domain/usecases/get_available_dates_usecase.dart';
 import 'feature/home/domain/usecases/get_available_slots_usecase.dart';
+import 'feature/home/domain/usecases/get_my_appointments.dart';
 import 'feature/home/domain/usecases/get_recommended_institutions.dart';
 import 'feature/home/domain/usecases/get_recommended_physicians.dart';
 import 'feature/home/presentation/bloc/booking_bloc.dart';
@@ -67,6 +68,7 @@ Future<void> setupLocator() async {
           getRecommendedPhysicians: sl(),
           getAllInstitutions: sl(),
           getAllPhysicians: sl(),
+          getMyAppointments: sl(),
           // authService: sl(),
         ));
     print('HomeBloc registered.');
@@ -87,6 +89,7 @@ Future<void> setupLocator() async {
     sl.registerLazySingleton(() => GetRecommendedPhysicians(sl()));
     sl.registerLazySingleton(() => GetAllInstitutions(sl()));
     sl.registerLazySingleton(() => GetAllPhysicians(sl()));
+    sl.registerLazySingleton(() => GetMyAppointments(sl()));
     
 
 

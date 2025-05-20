@@ -61,4 +61,5 @@ class BookingRepositoryImpl implements BookingRepository {
   Future<void> submitRating({required int physicianId, required int rating}) {
     return remoteDataSource.submitRating(physicianId: physicianId, rating: rating);
   }
+ 
 }

@@ -52,4 +52,9 @@ class HomeRepositoryImpl implements HomeRepository {
       return Left(Exception('Failed to fetch all physicians: $e'));
     }
   }
+  @override
+   @override
+  Future<List<Map<String, dynamic>>> getMyAppointments() {
+    return remoteDataSource.getMyAppointments();
+  }
 }

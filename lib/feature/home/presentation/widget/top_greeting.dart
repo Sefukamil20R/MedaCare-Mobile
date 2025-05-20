@@ -15,30 +15,32 @@ class TopGreeting extends StatelessWidget {
         children: [
           const CircleAvatar(
             radius: 24,
-            backgroundImage: AssetImage('assets/images/Avatar.png'),
+            backgroundImage: AssetImage('assets/images/Male.jpg'),
           ),
           const SizedBox(width: 12),
           BlocBuilder<AuthBloc, AuthState>(
-            builder: (context, state) {
-              String firstName = 'User';
-              if (state is UserProfileLoadedState) {
-                firstName = state.user.firstName ?? 'User';
-              }
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Hi, $firstName',
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                  const Text(
-                    'Good Morning',
-                    style: TextStyle(fontSize: 14, color: Colors.grey),
-                  ),
-                ],
-              );
-            },
+  builder: (context, state) {
+    if (state is UserProfileLoadedState) {
+      final firstName = state.user.firstName ?? 'User';
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Hi, $firstName',
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
+          const Text(
+            'Good Morning',
+            style: TextStyle(fontSize: 14, color: Colors.grey),
+          ),
+        ],
+      );
+    } else {
+      // Show nothing or a shimmer/loading indicator
+      return const SizedBox(width: 80, height: 16);
+    }
+  },
+),
           const Spacer(),
         ],
       ),

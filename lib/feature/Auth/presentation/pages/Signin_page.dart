@@ -41,6 +41,8 @@ class _SigninScreenState extends State<SigninScreen> {
   if (state.user.firstLogin == true) {
     Navigator.pushReplacementNamed(context, '/complete_profile');
   } else {
+    context.read<AuthBloc>().add(GetUserProfileEvent());
+
     Navigator.pushReplacementNamed(context, '/home');
   }
 } else if (state is AuthError) {
@@ -221,7 +223,7 @@ class _SigninScreenState extends State<SigninScreen> {
                         ),
                         GestureDetector(
                           onTap: () {
-                            Navigator.pushNamed(context, '/home');
+                            Navigator.pushNamed(context, '/signup');
                           },
                           child: const Text(
                             "Sign Up",

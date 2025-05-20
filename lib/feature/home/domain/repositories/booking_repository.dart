@@ -8,5 +8,4 @@ abstract class BookingRepository {
   Future<Either<Failure, Map<String, dynamic>>> bookSlot(int slotId);
   Future<Either<Failure, void>> finalizeBooking(int slotId);
     Future<void> submitRating({required int physicianId, required int rating});
-
 }
