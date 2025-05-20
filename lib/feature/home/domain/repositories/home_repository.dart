@@ -7,4 +7,6 @@ abstract class HomeRepository {
   Future<Either<Exception, List<PhysicianEntity>>> getRecommendedPhysicians(String token);
   Future<Either<Exception, List<InstitutionEntity>>> getAllInstitutions(String token);
   Future<Either<Exception, List<PhysicianEntity>>> getAllPhysicians(String token);
+  Future<List<Map<String, dynamic>>> getMyAppointments();
+
 }

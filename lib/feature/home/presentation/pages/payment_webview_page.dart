@@ -1,24 +1,4 @@
-// import 'package:flutter/material.dart';
-// import 'package:webview_flutter/webview_flutter.dart';
 
-// class PaymentWebViewPage extends StatelessWidget {
-//   final String paymentUrl;
-
-//   const PaymentWebViewPage({super.key, required this.paymentUrl});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text('Complete Your Payment'),
-//         backgroundColor: const Color(0xFF8C2F39),
-//       ),
-//       body: WebViewWidget(controller: WebViewController()
-//         ..setJavaScriptMode(JavaScriptMode.unrestricted)
-//         ..loadRequest(Uri.parse(paymentUrl))),
-//     );
-//   }
-// }
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'confirmation_page.dart'; // Import the confirmation page

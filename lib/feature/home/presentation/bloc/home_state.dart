@@ -69,3 +69,12 @@ class AllPhysiciansLoaded extends HomeState {
   @override
   List<Object?> get props => [physicians];
 }
+class MyAppointmentsLoading extends HomeState {}
+class MyAppointmentsLoaded extends HomeState {
+  final List<Map<String, dynamic>> appointments;
+  MyAppointmentsLoaded(this.appointments);
+}
+class MyAppointmentsError extends HomeState {
+  final String message;
+  MyAppointmentsError(this.message);
+}

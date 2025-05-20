@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/institution_model.dart';
 import '../models/physician_model.dart';
 
@@ -8,23 +9,36 @@ abstract class HomeRemoteDataSource {
   Future<List<PhysicianModel>> getRecommendedPhysicians(String token);
   Future<List<InstitutionModel>> getAllInstitutions(String token);
   Future<List<PhysicianModel>> getAllPhysicians(String token);
+    Future<List<Map<String, dynamic>>> getMyAppointments();
+
 }
 
 class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
   final http.Client client;
+  
+  Future<String> _getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('jwt_token');
+    if (token == null) {
+      throw Exception('Authorization token is missing. Please log in again.');
 
-  HomeRemoteDataSourceImpl({required this.client});
+    }
+    print('Token retrieved: $token'); // Log the token for debugging
 
-  static const _baseUrl = 'https://medacare-be.onrender.com/api/v1';
+    return token;
+  }
 
   Map<String, String> _buildHeaders(String token) {
-    print('Token used in headers: $token'); // Log the token
     return {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer $token',
     };
   }
+  HomeRemoteDataSourceImpl({required this.client});
 
+  static const _baseUrl = 'https://medacare-be.onrender.com/api/v1';
+
+  
   @override
 Future<List<PhysicianModel>> getRecommendedPhysicians(String token) async {
   try {
@@ -120,4 +134,27 @@ Future<List<PhysicianModel>> getRecommendedPhysicians(String token) async {
       throw Exception('Failed to get all physicians: $e');
     }
   }
+  @override
+Future<List<Map<String, dynamic>>> getMyAppointments() async {
+  final token = await _getToken();
+  final url = Uri.parse('$_baseUrl/patients/appointments');
+  print('Fetching patient appointments');
+  print('API URL: $url');
+
+  try {
+    final response = await client.get(url, headers: _buildHeaders(token));
+    print('Response Status Code: ${response.statusCode}');
+    print('Response Body: ${response.body}');
+
+    if (response.statusCode == 200) {
+      final body = jsonDecode(response.body);
+      return List<Map<String, dynamic>>.from(body['data']);
+    } else {
+      throw Exception('Failed to fetch appointments: ${response.body}');
+    }
+  } catch (e) {
+    print('Error fetching appointments: $e');
+    throw Exception('Error fetching appointments: $e');
+  }
+}
 }

@@ -177,4 +177,5 @@ Future<void> submitRating({required int physicianId, required int rating}) async
     throw Exception('Error submitting rating: $e');
   }
 }
+
 }

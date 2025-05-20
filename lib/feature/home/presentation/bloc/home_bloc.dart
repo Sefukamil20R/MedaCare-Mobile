@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../domain/entities/institution_entity.dart';
 import '../../domain/entities/physician_entity.dart';
+import '../../domain/usecases/get_my_appointments.dart';
 import '../../domain/usecases/get_recommended_institutions.dart';
 import '../../domain/usecases/get_recommended_physicians.dart';
 import '../../domain/usecases/get_all_institutions.dart';
@@ -14,7 +15,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final GetRecommendedPhysicians getRecommendedPhysicians;
   final GetAllInstitutions getAllInstitutions;
   final GetAllPhysicians getAllPhysicians;
-
+ final GetMyAppointments getMyAppointments;
   // Caching recommended data so both can be emitted together
   List<InstitutionEntity>? _cachedRecommendedInstitutions;
   List<PhysicianEntity>? _cachedRecommendedPhysicians;
@@ -24,6 +25,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     required this.getRecommendedPhysicians,
     required this.getAllInstitutions,
     required this.getAllPhysicians,
+    required this.getMyAppointments,
   }) : super(HomeInitial()) {
     // Handle GetRecommendedInstitutionsEvent
     on<GetRecommendedInstitutionsEvent>((event, emit) async {
@@ -111,8 +113,17 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         (physicians) => emit(AllPhysiciansLoaded(physicians)),
       );
     });
+    on<GetMyAppointmentsEvent>((event, emit) async {
+  emit(MyAppointmentsLoading());
+  try {
+    final appointments = await getMyAppointments(); // No token param!
+    emit(MyAppointmentsLoaded(appointments));
+  } catch (e) {
+    emit(MyAppointmentsError(e.toString()));
   }
-
+});
+  }
+ 
   // Helper method to retrieve the token from SharedPreferences
   Future<String?> _getToken() async {
     final prefs = await SharedPreferences.getInstance();
@@ -120,4 +131,5 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     print('Token retrieved in HomeBloc: $token');
     return token;
   }
+  
 }

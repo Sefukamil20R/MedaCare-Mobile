@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 
+import '../../../../core/errors/utility.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
@@ -33,9 +34,13 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is ProfileCompletionSuccess) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Profile completed successfully!")),
-          );
+          showCustomSnackBar(
+      context,
+      "Profile completed successfully!",
+      Colors.green,
+    );
+            context.read<AuthBloc>().add(GetUserProfileEvent());
+
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
@@ -43,9 +48,11 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
             ),
           );
         } else if (state is ProfileCompletionError) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.message)),
-          );
+          showCustomSnackBar(
+      context,
+      state.message,
+      Colors.red,
+    );
         }
       },
       child: Scaffold(

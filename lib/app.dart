@@ -21,9 +21,11 @@ import 'feature/home/domain/usecases/book_slot_usecase.dart';
 import 'feature/home/domain/usecases/finalize_booking_usecase.dart';
 import 'feature/home/domain/usecases/get_available_dates_usecase.dart';
 import 'feature/home/domain/usecases/get_available_slots_usecase.dart';
+import 'feature/home/domain/usecases/get_my_appointments.dart';
 import 'feature/home/presentation/bloc/booking_bloc.dart';
 import 'feature/home/presentation/pages/home_page.dart';
 import 'feature/home/presentation/pages/booking.dart';
+import 'feature/home/presentation/pages/my_appointments.dart';
 import 'injection_container.dart';
 import 'feature/home/presentation/bloc/home_bloc.dart';
 import 'feature/home/domain/usecases/get_all_institutions.dart';
@@ -61,6 +63,7 @@ class MedaCareApp extends StatelessWidget {
             getRecommendedPhysicians: sl<GetRecommendedPhysicians>(),
             getAllInstitutions: sl<GetAllInstitutions>(),
             getAllPhysicians: sl<GetAllPhysicians>(),
+            getMyAppointments: sl<GetMyAppointments>(),
             // authService: sl<AuthService>(),
           ),
         ),
@@ -86,6 +89,7 @@ class MedaCareApp extends StatelessWidget {
           '/profile': (context) => ProfileDetailsPage(),
           '/complete_profile': (context) => CompleteProfilePage(),
           '/home': (context) => HomePage(),
+          '/my_appointments': (context) => const MyAppointmentsPage(),
           // '/booking': (context) => BookingPage(),
         },
       ),
